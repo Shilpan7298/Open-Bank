@@ -836,56 +836,56 @@
    "module": "E2E",
    "type": "e2e",
    "description": "happy path: onboard, score, back, auction, drawdown, repay, claims; credit limit rises",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-02",
    "module": "E2E",
    "type": "e2e",
    "description": "default fully covered by collateral and vouchers",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-03",
    "module": "E2E",
    "type": "e2e",
    "description": "default reaching basket junior and senior",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-04",
    "module": "E2E",
    "type": "e2e",
    "description": "default exhausting the basket; reserve pays",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-05",
    "module": "E2E",
    "type": "e2e",
    "description": "default where senior lenders take a loss",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-06",
    "module": "E2E",
    "type": "e2e",
    "description": "lender vault funds a loan and realises returns",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-07",
    "module": "E2E",
    "type": "e2e",
    "description": "failed auction refunds lenders, vouchers and collateral",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-08",
    "module": "E2E",
    "type": "e2e",
    "description": "borrower misses drawdown; loan cancelled and everyone refunded",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-09",
