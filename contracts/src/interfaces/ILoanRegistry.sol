@@ -43,7 +43,7 @@ interface ILoanRegistry {
         uint256 lenderCash; // cumulative cash credited to lenders (repayments + waterfall)
         uint256 lenderClaimed; // cumulative cash claimed by lenders
         uint256 coverPrincipal; // locked voucher stake principal
-        uint256 insuredExposure; // exposure assigned to the insurance basket
+        uint256 insuredExposure; // principal not covered by collateral and voucher stakes, insured by the basket
         uint256 reserveFee; // fee taken at drawdown
     }
 

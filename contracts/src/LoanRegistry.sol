@@ -278,8 +278,11 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         l.state = LoanState.Defaulted;
         (uint256 lenderPaid,,) = _split(d, d.repaid);
         uint256 loss = d.lenderDue - lenderPaid;
+        // Lender receipts repay principal and interest pro rata; the principal still unpaid is insurable.
+        uint256 principalPaid = Math.mulDiv(lenderPaid, l.principal, d.lenderDue);
+        uint256 insurable = l.principal - principalPaid;
 
-        ILossWaterfall.Allocation memory a = waterfall.executeDefault(loanId, loss);
+        ILossWaterfall.Allocation memory a = waterfall.executeDefault(loanId, loss, insurable);
         uint256 recovered = loss - a.lenderLoss;
         d.lenderCash += recovered;
         credit.onLoanDefaulted(l.borrower, l.principal);
@@ -364,7 +367,9 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         d.lenderDue = p + Math.mulDiv(p * rateBps, l.term, YEAR * BPS, Math.Rounding.Ceil);
         d.coverPrincipal = vouching.coverOf(loanId).coverPrincipal;
         uint256 backing = escrow.collateralOf(loanId) + d.coverPrincipal;
-        d.insuredExposure = d.lenderDue > backing ? d.lenderDue - backing : 0;
+        // Insurance covers principal only (security review H-1): never the interest at a rate the borrower
+        // could have set against itself.
+        d.insuredExposure = p > backing ? p - backing : 0;
         d.voucherPremiumDue =
             Math.mulDiv(d.coverPrincipal * params.voucherPremiumBps, l.term, YEAR * BPS, Math.Rounding.Ceil);
         uint16 insuranceRate = basket.premiumRateBps(_basketId(l));

@@ -5,10 +5,11 @@ pragma solidity 0.8.35;
 /// @notice The single place where default losses are allocated, in strict order:
 /// 1. borrower collateral, 2. voucher stakes of the loan, 3. insurance basket (junior then senior),
 /// 4. protocol reserve, 5. senior lenders. A lower layer never absorbs loss while a higher layer still has
-/// capacity for that loan.
+/// capacity for that loan. Layers 3-4 are limited to unpaid principal.
 interface ILossWaterfall {
     struct Allocation {
         uint256 loss; // lender claim outstanding at default
+        uint256 insurable; // part of the loss that is unpaid principal (the most layers 3-4 can cover)
         uint256 collateral;
         uint256 vouchers;
         uint256 basketJunior;
@@ -22,8 +23,12 @@ interface ILossWaterfall {
     error AlreadyAllocated(uint256 loanId);
 
     /// @notice Allocate `loss` for a defaulted loan. Every layer sends what it absorbs to the caller (the loan
-    /// registry, which credits lenders). Loan registry only, once per loan.
-    function executeDefault(uint256 loanId, uint256 loss) external returns (Allocation memory allocation);
+    /// registry, which credits lenders). Collateral and voucher stakes cover the whole lender claim; the insurance
+    /// basket and the reserve cover at most `insurableLoss` (unpaid principal) net of what the borrower's layers
+    /// paid, so a borrower cannot inflate an insured claim by choosing a high rate. Loan registry only, once per loan.
+    function executeDefault(uint256 loanId, uint256 loss, uint256 insurableLoss)
+        external
+        returns (Allocation memory allocation);
 
     /// @notice Allocation recorded for `loanId`.
     function allocationOf(uint256 loanId) external view returns (Allocation memory);

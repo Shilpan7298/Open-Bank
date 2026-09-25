@@ -117,6 +117,7 @@ library DeployLib {
         s.reserve.grantRole(s.reserve.REGISTRY_ROLE(), reg);
         s.reserve.grantRole(s.reserve.WATERFALL_ROLE(), wf);
         s.waterfall.grantRole(s.waterfall.REGISTRY_ROLE(), reg);
+        s.auction.grantRole(s.auction.EXEMPT_LENDER_ROLE(), address(s.lenderVault));
     }
 
     /// @notice Every governed contract, for hand-over and governance tests.

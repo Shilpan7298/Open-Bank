@@ -232,14 +232,21 @@ contract SystemHandler is ScoreSigner {
         defaults++;
         lossHappened = true;
         ILossWaterfall.Allocation memory a = s.waterfall.allocationOf(id);
-        uint256 basketCap = exposure < capital ? exposure : capital;
         uint256 basketPaid = a.basketJunior + a.basketSenior;
+        // Layers 3-4 cover unpaid principal only (security H-1): their limit for this loan is what is left of
+        // the insurable principal after the borrower's layers.
+        uint256 borrowerSide = a.collateral + a.vouchers;
+        uint256 insLeft = a.insurable > borrowerSide ? a.insurable - borrowerSide : 0;
+        uint256 basketCap = exposure < capital ? exposure : capital;
+        if (insLeft < basketCap) basketCap = insLeft;
+        uint256 reserveCap = insLeft - basketPaid < reserveAssets ? insLeft - basketPaid : reserveAssets;
         if (a.vouchers > 0 && a.collateral < collateral) waterfallViolations++;
         if (basketPaid > 0 && (a.collateral < collateral || a.vouchers < stakeValue)) waterfallViolations++;
         if (a.basketSenior > 0 && a.basketJunior < junior && a.basketJunior < exposure) waterfallViolations++;
         if (a.reserve > 0 && basketPaid < basketCap) waterfallViolations++;
         if (a.lenderLoss > 0 && (a.collateral < collateral || a.vouchers < stakeValue)) waterfallViolations++;
-        if (a.lenderLoss > 0 && (basketPaid < basketCap || a.reserve < reserveAssets)) waterfallViolations++;
+        if (a.lenderLoss > 0 && (basketPaid < basketCap || a.reserve < reserveCap)) waterfallViolations++;
+        if (basketPaid + a.reserve > a.insurable) waterfallViolations++; // insurers never pay interest
     }
 
     function claims(uint256 idx, uint256 who) external checked {

@@ -115,9 +115,16 @@ contract LossWaterfallTest is Test {
     }
 
     function _default(uint256 loanId, uint256 loss) internal returns (ILossWaterfall.Allocation memory a) {
+        return _default(loanId, loss, loss); // the whole loss is unpaid principal
+    }
+
+    function _default(uint256 loanId, uint256 loss, uint256 insurable)
+        internal
+        returns (ILossWaterfall.Allocation memory a)
+    {
         uint256 before = usdc.balanceOf(registry);
         vm.prank(registry);
-        a = waterfall.executeDefault(loanId, loss);
+        a = waterfall.executeDefault(loanId, loss, insurable);
         assertEq(usdc.balanceOf(registry) - before, loss - a.lenderLoss); // every absorbed unit reached lenders
         assertEq(
             a.collateral + a.vouchers + a.basketJunior + a.basketSenior + a.reserve + a.lenderLoss, loss
@@ -177,17 +184,28 @@ contract LossWaterfallTest is Test {
     function test_oncePerLoanRegistryOnly() public {
         _setup(1, Layers(500e6, 0, 0, 0, 0, 0));
         vm.expectRevert();
-        waterfall.executeDefault(1, 1);
+        waterfall.executeDefault(1, 1, 1);
         vm.prank(registry);
-        waterfall.executeDefault(1, 10e6);
+        waterfall.executeDefault(1, 10e6, 10e6);
         vm.prank(registry);
         vm.expectRevert(abi.encodeWithSelector(ILossWaterfall.AlreadyAllocated.selector, 1));
-        waterfall.executeDefault(1, 10e6);
+        waterfall.executeDefault(1, 10e6, 10e6);
         assertEq(waterfall.allocationOf(1).collateral, 10e6);
     }
 
+    // LW-08 (security H-1): insurance and the reserve never pay interest, only unpaid principal.
+    function test_interestNotInsured() public {
+        _setup(1, Layers(500e6, 300e6, 1_000e6, 1_000e6, 400e6, 100e6));
+        // Claim 1500, of which 1000 is unpaid principal: borrower layers take 800, insurers at most 200.
+        ILossWaterfall.Allocation memory a = _default(1, 1_500e6, 1_000e6);
+        assertEq(a.collateral + a.vouchers, 800e6);
+        assertEq(a.basketJunior + a.basketSenior, 200e6);
+        assertEq(a.reserve, 0);
+        assertEq(a.lenderLoss, 500e6); // interest risk stays with lenders who chose the rate
+    }
+
     // LW-06
-    function testFuzz_strictOrder(Layers memory l, uint256 loss) public {
+    function testFuzz_strictOrder(Layers memory l, uint256 loss, uint256 insurable) public {
         l.collateral = bound(l.collateral, 0, 1_000_000e6);
         l.stake = bound(l.stake, 0, 1_000_000e6);
         l.junior = bound(l.junior, 0, 1_000_000e6);
@@ -196,30 +214,36 @@ contract LossWaterfallTest is Test {
         l.exposure = bound(l.exposure, 0, cap);
         l.reserve = bound(l.reserve, 0, 100_000e6);
         loss = bound(loss, 0, 5_000_000e6);
+        insurable = bound(insurable, 0, loss);
         _setup(1, l);
         uint256 stakeValue = vouching.coverValue(1);
         uint256 reserveAssets = reserve.reserveAssets();
 
-        ILossWaterfall.Allocation memory a = _default(1, loss);
+        ILossWaterfall.Allocation memory a = _default(1, loss, insurable);
 
         uint256 rem = loss;
         assertEq(a.collateral, _min(rem, l.collateral));
         rem -= a.collateral;
         assertEq(a.vouchers, _min(rem, stakeValue));
         rem -= a.vouchers;
-        uint256 basketCap = _min(l.exposure, l.junior + l.senior);
+        uint256 borrowerSide = a.collateral + a.vouchers;
+        uint256 insLeft = insurable > borrowerSide ? insurable - borrowerSide : 0;
+        uint256 basketCap = _min(_min(l.exposure, l.junior + l.senior), insLeft);
         assertEq(a.basketJunior + a.basketSenior, _min(rem, basketCap));
         assertEq(a.basketJunior, _min(a.basketJunior + a.basketSenior, l.junior)); // junior before senior
         rem -= a.basketJunior + a.basketSenior;
-        assertEq(a.reserve, _min(rem, reserveAssets));
+        insLeft -= a.basketJunior + a.basketSenior;
+        assertEq(a.reserve, _min(insLeft, reserveAssets));
         rem -= a.reserve;
         assertEq(a.lenderLoss, rem);
         if (a.lenderLoss > 0) {
+            // Lenders lose only after every layer is exhausted up to its limit for this loan.
             assertEq(a.collateral, l.collateral);
             assertEq(a.vouchers, stakeValue);
             assertEq(a.basketJunior + a.basketSenior, basketCap);
-            assertEq(a.reserve, reserveAssets);
+            assertTrue(a.reserve == reserveAssets || a.reserve == insLeft); // reserve or insurable cap exhausted
         }
+        assertLe(a.basketJunior + a.basketSenior + a.reserve, insurable); // insurers never pay interest
     }
 
     function _min(uint256 x, uint256 y) internal pure returns (uint256) {

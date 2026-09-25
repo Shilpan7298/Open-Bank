@@ -44,6 +44,7 @@ interface IRateAuction {
     event AuctionFailed(uint256 indexed loanId, uint256 totalBid);
     event AuctionCancelled(uint256 indexed loanId);
     event Disbursed(uint256 indexed loanId, address indexed to, uint256 amount);
+    event BidEvicted(uint256 indexed loanId, uint256 indexed bidId, address indexed lender, uint256 amount);
     event Refunded(uint256 indexed loanId, uint256 indexed bidId, address indexed lender, uint256 amount);
 
     error WrongStatus(uint256 loanId, Status status);
@@ -56,13 +57,16 @@ interface IRateAuction {
     error BorrowerCannotBid();
     error NothingToRefund();
     error InvalidAuction();
+    error UnverifiedLender(address lender);
 
     /// @notice Open the auction for `loanId`. Loan registry only.
     function openAuction(uint256 loanId, address borrower, uint256 principal, uint16 maxRateBps, uint64 endTime)
         external;
 
     /// @notice Escrow a bid of `amount` at minimum rate `rateBps` (a multiple of the tick, <= max rate).
-    /// Bids are binding: there is no cancellation. Caller must not be sanctioned or the borrower.
+    /// Bids are binding: there is no cancellation. Caller must not be sanctioned, and must be a verified person
+    /// other than the borrower (protocol vaults are exempt). When the book is full, a strictly lower rate evicts
+    /// the worst bid.
     /// @return bidId Index of the bid within the loan's auction.
     function placeBid(uint256 loanId, uint256 amount, uint16 rateBps) external returns (uint256 bidId);
 
@@ -81,6 +85,12 @@ interface IRateAuction {
     /// Paid to the bid's lender, who must not be sanctioned. Callable by anyone once refundable.
     /// @return amount Refunded.
     function refund(uint256 loanId, uint256 bidId) external returns (uint256 amount);
+
+    /// @notice Withdraw escrow from bids that were evicted by better-rate bids when the book was full.
+    function withdrawEvicted() external returns (uint256 amount);
+
+    /// @notice Escrow waiting for `lender` from evicted bids.
+    function evictedBalanceOf(address lender) external view returns (uint256);
 
     /// @notice Refundable amount of a bid right now.
     function refundable(uint256 loanId, uint256 bidId) external view returns (uint256);

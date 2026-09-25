@@ -19,12 +19,25 @@ contract RateAuctionTest is Test {
     RateAuction auction;
     uint64 endTime;
     uint256 constant P = 10_000e6;
+    bytes32 constant SCHEMA = keccak256("id");
+    MockEAS eas;
+    IdentityGate gate;
+
+    function _verify(address who) internal {
+        bytes32 uid = eas.attest(SCHEMA, who, 0, abi.encode(uint256(1), keccak256(abi.encode(who))));
+        vm.prank(who);
+        gate.registerIdentity(uid);
+    }
 
     function setUp() public {
         usdc = new MockUSDC();
         oracle = new MockSanctionsOracle();
-        IdentityGate gate = new IdentityGate(admin, address(0), new MockEAS(), oracle, bytes32(0));
+        eas = new MockEAS();
+        gate = new IdentityGate(admin, address(0), eas, oracle, SCHEMA);
+        vm.prank(admin);
+        gate.setTrustedAttester(address(this), true);
         auction = new RateAuction(admin, address(0), usdc, gate);
+        _verify(borrower);
         bytes32 role = auction.REGISTRY_ROLE();
         vm.prank(admin);
         auction.grantRole(role, registry);
@@ -34,6 +47,7 @@ contract RateAuctionTest is Test {
     function _lender(uint256 i) internal returns (address l) {
         l = address(uint160(0x10000 + i));
         if (usdc.balanceOf(l) == 0) {
+            _verify(l);
             usdc.mint(l, 10_000_000e6);
             vm.prank(l);
             usdc.approve(address(auction), type(uint256).max);
@@ -185,11 +199,24 @@ contract RateAuctionTest is Test {
         _open(1, P, 1_000);
         assertEq(auction.auctionOf(1).minBid, P / 100);
         for (uint256 i; i < 100; i++) _bid(i, 100e6, 1_000);
+        // Full book: an equal or worse rate is refused ...
         address l = _lender(1000);
         vm.prank(l);
         vm.expectRevert(abi.encodeWithSelector(IRateAuction.TooManyBids.selector, 1));
-        auction.placeBid(1, 100e6, 500);
-        (bool ok,) = _settle(); // the full book always reaches the principal
+        auction.placeBid(1, 100e6, 1_000);
+        // ... a strictly better rate evicts the worst (most recent at the highest rate) bid (M-2).
+        vm.prank(l);
+        uint256 id = auction.placeBid(1, 100e6, 500);
+        assertEq(id, 99);
+        assertEq(auction.bidOf(1, 99).lender, l);
+        address evicted = _lender(99);
+        assertEq(auction.evictedBalanceOf(evicted), 100e6);
+        uint256 before = usdc.balanceOf(evicted);
+        vm.prank(evicted);
+        auction.withdrawEvicted();
+        assertEq(usdc.balanceOf(evicted) - before, 100e6);
+        (bool ok, uint16 rate) = _settle(); // the full book always reaches the principal
+        assertEq(rate, 1_000);
         assertTrue(ok);
 
         vm.prank(registry);

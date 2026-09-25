@@ -90,7 +90,7 @@ contract LoanRegistryTest is SystemFixture {
         assertEq(l.rateBps, 900);
         assertEq(d.coverPrincipal, 600e6);
         assertEq(d.lenderDue, 1_044_383_562); // 1000 + 9% x 180/365, rounded up
-        assertEq(d.insuredExposure, d.lenderDue - 900e6);
+        assertEq(d.insuredExposure, P - 900e6); // principal only (security H-1)
         assertEq(d.totalDue, d.lenderDue + d.voucherPremiumDue + d.insurancePremiumDue);
         assertEq(uint8(s.vouching.coverOf(id).state), uint8(IVouchingModule.CoverState.Locked));
         assertEq(s.basket.exposureOf(s.basket.basketIdOf(2, Tier.A)), d.insuredExposure);
@@ -212,9 +212,9 @@ contract LoanRegistryTest is SystemFixture {
         _vouch(id2, v2, 400e6); // 20% + 80% = 100%
         _bid(id2, l2, 500e6, 800);
         assertTrue(_settle(id2));
-        // only the interest is left for insurance
+        // collateral + stakes cover all principal, so nothing is insured (interest risk stays with lenders)
         ILoanRegistry.Dues memory d = s.registry.duesOf(id2);
-        assertEq(d.insuredExposure, d.lenderDue - 500e6);
+        assertEq(d.insuredExposure, 0);
     }
 
     // LR-13
@@ -369,8 +369,11 @@ contract LoanRegistryTest is SystemFixture {
         assertEq(a.loss, d.lenderDue - lenderPaid);
         assertEq(a.collateral, 300e6);
         assertEq(a.vouchers, 600e6);
-        assertEq(a.lenderLoss, 0); // basket covers the rest
-        assertEq(s.registry.duesOf(id).lenderCash, d.lenderDue); // lenders made whole
+        uint256 lenderPaidExact = 100e6 * d.lenderDue / d.totalDue;
+        assertEq(a.insurable, P - lenderPaidExact * P / d.lenderDue); // unpaid principal (pro rata split)
+        assertEq(a.basketJunior + a.basketSenior, a.insurable - 900e6); // basket covers the principal gap
+        assertLe(a.lenderLoss, d.lenderDue - P); // lenders lose at most interest, never principal
+        assertEq(s.registry.duesOf(id).lenderCash + a.lenderLoss, d.lenderDue);
         assertEq(s.credit.creditLimit(borrower, Tier.A), 0);
         assertEq(s.registry.totalOutstandingPrincipal(), 0);
         vm.expectRevert();

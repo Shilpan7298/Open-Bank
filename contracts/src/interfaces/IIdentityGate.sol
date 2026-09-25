@@ -17,10 +17,13 @@ interface IIdentityGate {
     error NotVerified(address account);
     error JurisdictionBlocked(address account, uint16 country);
     error InvalidAttestation(bytes32 uid);
+    error PersonAlreadyRegistered(bytes32 person, address wallet);
 
     /// @notice Link the caller to an identity attestation. The attestation must use the identity schema,
     /// be issued by a trusted attester to the caller, and be neither revoked nor expired.
-    /// @param uid EAS attestation UID. Data is `abi.encode(uint16 country)`.
+    /// @param uid EAS attestation UID. Data is `abi.encode(uint256 country, bytes32 person)`, where `person` is the
+    /// issuer's salted unique id for the human. One wallet per person; a lost wallet's attestation must be revoked
+    /// before a new wallet can register.
     function registerIdentity(bytes32 uid) external;
 
     /// @notice True if the sanctions oracle lists `account`.
@@ -38,6 +41,11 @@ interface IIdentityGate {
 
     /// @notice Non-reverting form of `borrowerProfile`: true if `account` could borrow right now.
     function isEligibleBorrower(address account) external view returns (bool);
+
+    /// @notice The verified person behind `account`, or zero if it has no valid identity, is sanctioned, is in a
+    /// blocked jurisdiction, or is no longer that person's registered wallet. Used to stop one person acting as two
+    /// independent parties on a loan (e.g. borrower and lender).
+    function personOf(address account) external view returns (bytes32);
 
     /// @notice Effective tier for a country code: the governed mapping, or tier C if unset.
     function tierOf(uint16 country) external view returns (Tier);
