@@ -7,8 +7,33 @@ Phase 1 foundation is in place and green.
 - All 11 contract modules from CLAUDE.md are implemented, plus `StakeVault` (the stake yield vault), `DeployLib` and an Anvil deploy script.
 - **Foundry: 137 tests pass** (`forge test`): unit, fuzz, 12 stateful invariants (8 of them system-wide), e2e and deploy.
 - **Underwriter: 21 tests pass** (`npx vitest run`), including a live Anvil end-to-end run. **Sim: 1 test passes.**
-- `tests.json`: **134 of 135 planned tests pass.** The one not started is IB-13, basket capital earning base yield (see Next).
+- `tests.json`: **137 of 138 planned tests pass** (see session 1b below). The one not started is IB-13, basket capital earning base yield (see Next).
 - `./init.sh` takes a fresh clone to green in one command.
+
+## Session 1b: global access and open collaboration
+
+The founder set the direction: OBP is mainly for people in poor or broken economies (Egypt, Bangladesh, Argentina), in their own languages, and built in the open with collaborators worldwide. Recorded in CLAUDE.md ("Who it is for", "Open collaboration").
+
+- **`i18n/`:** English source plus Arabic (RTL), Bengali and Spanish machine drafts (`needs_review`), 37 messages each. They cover loan states, every contract cancel reason, errors, plain-language concept explanations, repayment prompts and score summaries. `i18n/check.mjs` runs in init.sh and CI.
+- **Underwriter:**
+  - Reads proposals in any language.
+  - Is told never to penalise language or writing quality, and to weigh local-currency risk.
+  - Returns `borrower_summary` in the borrower's language. It is part of the hashed published score.
+  - The mock uses the catalogs and local numerals: `ar-EG` gives Arabic-Indic digits, `bn-BD` Bengali digits, and plain `ar` Western digits.
+  - Existing tests gained the new required fields (a spec extension, not a weakening). New tests: UW-08, UW-09, I18N-01.
+- **Collaboration:**
+  - README rewritten for newcomers, plus README.ar.md, README.bn.md and README.es.md.
+  - CONTRIBUTING.md (with translation sections in each launch language), CODE_OF_CONDUCT.md and SECURITY.md.
+  - Issue templates: bug, idea, translation, country insight. A pull-request template.
+  - CI (`.github/workflows/ci.yml` runs `./init.sh`).
+  - docs/good-first-issues.md (13 starter tasks) and docs/ROADMAP.md.
+- **Waiting on the founder:**
+  - Creating GitHub issues and labels from the starter list.
+  - Enabling Discussions and private vulnerability reporting.
+  - Repository visibility.
+  - A contact email for conduct and security reports (currently @Shilpan7298 on GitHub).
+  - Merging this branch to `main`.
+- **Open question:** the stablecoin legal position differs sharply by country. Bangladesh's central bank has warned against crypto, Egypt restricts it, and Argentina uses stablecoins widely. This needs country legal review before any real funds (Phase 3).
 
 ## How to resume
 

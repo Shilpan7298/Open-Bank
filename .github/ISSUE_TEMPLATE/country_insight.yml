@@ -1,0 +1,25 @@
+name: Country insight
+description: Tell us how credit, money and law really work where you live. This shapes jurisdiction tiers and risk models.
+labels: [country-insight]
+body:
+  - type: input
+    id: country
+    attributes:
+      label: Country
+    validations:
+      required: true
+  - type: textarea
+    id: credit
+    attributes:
+      label: Credit and savings
+      description: How do people borrow today (banks, microfinance, family, informal lenders)? Typical rates? Credit bureau?
+  - type: textarea
+    id: money
+    attributes:
+      label: Currency and stablecoins
+      description: Inflation, currency controls, how people get dollars, whether stablecoins are legal and used.
+  - type: textarea
+    id: law
+    attributes:
+      label: Courts and enforcement
+      description: Can a lender realistically recover a small debt? Is arbitration recognised?

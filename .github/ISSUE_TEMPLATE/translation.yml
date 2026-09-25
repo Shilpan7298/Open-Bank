@@ -1,0 +1,27 @@
+name: Translation
+description: Add a language, review a machine draft, or fix a translation.
+labels: [translation, good first issue]
+body:
+  - type: input
+    id: language
+    attributes:
+      label: Language (and country, if it matters)
+      placeholder: e.g. Arabic (Egypt), Bengali (Bangladesh), Spanish (Argentina), Urdu, Swahili
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What do you want to do?
+      options:
+        - Review a machine-drafted catalog (needs_review)
+        - Add a new language
+        - Fix a specific message
+        - Translate the README
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything about local words for money, loans or trust that translators should know.
