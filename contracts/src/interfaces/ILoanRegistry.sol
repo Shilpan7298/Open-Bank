@@ -80,6 +80,8 @@ interface ILoanRegistry {
     error EmptyAgreement();
     error NotDefaultable(uint256 loanId);
     error NothingToClaim();
+    error NothingToRepay();
+    error ExceedsCreditLimit(uint256 principal, uint256 available);
 
     /// @notice Propose a loan. The caller must pass IdentityGate and the principal must fit its credit limit.
     /// @param principal Amount to borrow (asset units).

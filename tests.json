@@ -297,140 +297,140 @@
    "module": "LoanRegistry",
    "type": "unit",
    "description": "propose requires IdentityGate, credit room and valid terms",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-02",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "open requires score consensus; score sets band and can only raise voucher cover",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-03",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "postCollateral is borrower-only and only during the auction window",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-04",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "settle funds the loan when every condition holds",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-05",
    "module": "LoanRegistry",
    "type": "fuzz",
    "description": "settle cancels when collateral is below the tier/stage minimum",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-06",
    "module": "LoanRegistry",
    "type": "fuzz",
    "description": "settle cancels when voucher cover is below the requirement",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-07",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "settle cancels when the borrower is sanctioned or its identity is revoked",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-08",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "settle cancels when the loan no longer fits the credit limit",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-09",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "settle cancels when the score expired or its scorer was deregistered",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-10",
    "module": "LoanRegistry",
    "type": "fuzz",
    "description": "a valid score is never sufficient: with any other condition missing the loan is not funded",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-11",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "settle cancels when the insurance basket lacks capacity",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-12",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "tier C needs collateral + voucher cover >= principal",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-13",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "drawdown stores agreement hash, takes reserve fee, disburses the rest",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-14",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "cancelExpired refunds lenders, frees cover and credit; collateral withdrawable",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-15",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "repay splits cumulatively; full repayment releases collateral/stakes and raises the credit limit",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-16",
    "module": "LoanRegistry",
    "type": "fuzz",
    "description": "repayment split is exact at full repayment for lenders, vouchers and insurers",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-17",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "amountDueBy follows installments; default only after the grace period",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-18",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "markDefault runs the waterfall once and credits recovered cash to lenders",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-19",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "lenders claim pro rata by fill; sanctioned lender cannot claim",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-20",
    "module": "LoanRegistry",
    "type": "unit",
    "description": "repay and markDefault work while paused; new risk entry points do not",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LV-01",

@@ -97,6 +97,9 @@ interface IRateAuction {
     /// @notice Rate tick size in bps. Bids must be multiples of it.
     function TICK_BPS() external view returns (uint16);
 
+    /// @notice Highest max rate a loan may set, in bps.
+    function MAX_RATE_BPS() external view returns (uint16);
+
     /// @notice Maximum bids per auction. The minimum bid is ceil(principal / MAX_BIDS), so the book can always
     /// reach the principal.
     function MAX_BIDS() external view returns (uint32);
