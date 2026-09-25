@@ -892,7 +892,7 @@
    "module": "E2E",
    "type": "e2e",
    "description": "Deploy script wires the system on Anvil and hands admin to the timelock",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "UW-01",
