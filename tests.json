@@ -780,56 +780,56 @@
    "module": "System",
    "type": "invariant",
    "description": "waterfall order holds for every default in random system runs",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "INV-02",
    "module": "System",
    "type": "invariant",
    "description": "conservation: assets across modules == deposits + interest/fees - withdrawals - realised losses, to the wei",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "INV-03",
    "module": "System",
    "type": "invariant",
    "description": "voucher stakes backing an Active loan are never withdrawn",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "INV-04",
    "module": "System",
    "type": "invariant",
    "description": "every funded loan met collateral, cover, identity and credit-limit conditions when funded",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "INV-05",
    "module": "System",
    "type": "invariant",
    "description": "no loan is funded without a score consensus, and none on the score alone",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "INV-06",
    "module": "System",
    "type": "invariant",
    "description": "reserve assets <= cap of outstanding principal",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "INV-07",
    "module": "System",
    "type": "invariant",
    "description": "basket leverage and concentration limits hold outside loss absorption",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "INV-08",
    "module": "System",
    "type": "invariant",
    "description": "sanctioned actors never receive payouts",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "E2E-01",
