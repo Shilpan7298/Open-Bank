@@ -626,49 +626,49 @@
    "module": "LossWaterfall",
    "type": "unit",
    "description": "collateral alone covers the loss; no other layer touched",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LW-02",
    "module": "LossWaterfall",
    "type": "unit",
    "description": "collateral then voucher stakes",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LW-03",
    "module": "LossWaterfall",
    "type": "unit",
    "description": "insurance basket junior then senior",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LW-04",
    "module": "LossWaterfall",
    "type": "unit",
    "description": "reserve pays after the basket is exhausted for the loan",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LW-05",
    "module": "LossWaterfall",
    "type": "unit",
    "description": "senior lenders lose only after every layer is exhausted",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LW-06",
    "module": "LossWaterfall",
    "type": "fuzz",
    "description": "strict order for random layer sizes and losses",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LW-07",
    "module": "LossWaterfall",
    "type": "unit",
    "description": "executeDefault runs once per loan, registry only",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-01",
