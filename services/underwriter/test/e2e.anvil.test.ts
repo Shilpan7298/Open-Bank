@@ -81,12 +81,13 @@ describe.skipIf(!hasFoundry)("UW-07: score, sign and attest on Anvil; ScoreOracl
     const verified = await readVerifiedData(client, d, borrower.address as Address);
     expect(verified.tier).toBe("A");
     expect(verified.creditLimit).toBe(2_000_000_000n);
-    const score = await new MockScorer().score(verified, { loanId, principal: 1_000_000_000n, termDays: 180, proposal: "van" });
+    const score = await new MockScorer().score(verified, { loanId, principal: 1_000_000_000n, termDays: 180, proposal: "van", language: "bn" });
     const block = await client.getBlock();
     const onChain = toOnChainScore(score, loanId, borrower.address as Address, block.timestamp + 30n * 86400n);
     await publishScore(client, wallet(scorer), scorer, d, onChain);
 
     const c = await client.readContract({ address: d.scoreOracle, abi: abis.oracle, functionName: "consensus", args: [loanId, borrower.address] });
+    expect(score.borrower_summary.language).toBe("bn");
     expect(c.ok).toBe(true);
     expect(c.riskBand).toBe(score.risk_band);
     expect(c.minVoucherCoverBps).toBe(onChain.minVoucherCoverBps);

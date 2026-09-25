@@ -949,6 +949,27 @@
    "type": "unit",
    "description": "launch parameters match CLAUDE.md bounds",
    "status": "passing"
+  },
+  {
+   "id": "UW-08",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "proposals in any script are fenced; prompt forbids penalising language or writing style and asks for currency-risk weighting",
+   "status": "passing"
+  },
+  {
+   "id": "UW-09",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "borrower_summary is in the borrower's language with local numerals; same score whatever the language",
+   "status": "passing"
+  },
+  {
+   "id": "I18N-01",
+   "module": "i18n",
+   "type": "unit",
+   "description": "every catalog has the English keys and placeholders, valid metadata, and a message for every LoanRegistry cancel reason",
+   "status": "passing"
   }
  ]
 }
