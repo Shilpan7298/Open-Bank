@@ -1,0 +1,7 @@
+upstream/
+.env
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+node_modules/
+contracts/deployments/*.json

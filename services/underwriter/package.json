@@ -1,0 +1,27 @@
+{
+  "name": "@obp/underwriter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OBP AI underwriter: scores borrower proposals, signs EIP-712 scores for ScoreOracle",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "typecheck": "tsc -p . --noEmit",
+    "test": "vitest run",
+    "score": "tsc -p . && node dist/src/cli.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "viem": "^2.56.9",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  }
+}

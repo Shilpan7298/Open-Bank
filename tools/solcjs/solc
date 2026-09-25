@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+// Minimal solc CLI shim over solc-js for forge (FOUNDRY_SOLC=tools/solcjs/solc).
+// Supports `--version` and `--standard-json` (input on stdin), which is all forge uses.
+const fs = require("fs");
+const path = require("path");
+const solc = require(path.join(__dirname, "node_modules", "solc"));
+
+const args = process.argv.slice(2);
+if (args.includes("--version")) {
+  process.stdout.write(`solc, the solidity compiler commandline interface\nVersion: ${solc.version()}\n`);
+  process.exit(0);
+}
+if (!args.includes("--standard-json")) {
+  process.stderr.write("solcjs shim: only --version and --standard-json are supported\n");
+  process.exit(1);
+}
+
+// Resolve imports forge did not inline, relative to the base and include paths it passes.
+const roots = [process.cwd()];
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "--base-path" || args[i] === "--include-path") roots.push(path.resolve(args[i + 1]));
+}
+function findImports(p) {
+  for (const r of roots) {
+    const f = path.resolve(r, p);
+    if (fs.existsSync(f)) return { contents: fs.readFileSync(f, "utf8") };
+  }
+  return { error: "File not found: " + p };
+}
+
+const input = fs.readFileSync(0, "utf8");
+process.stdout.write(solc.compile(input, { import: findImports }));

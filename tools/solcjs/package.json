@@ -1,0 +1,8 @@
+{
+  "name": "obp-solcjs-fallback",
+  "private": true,
+  "description": "solc-js wrapped as a solc binary for forge, used only when native solc cannot be downloaded",
+  "dependencies": {
+    "solc": "0.8.35"
+  }
+}

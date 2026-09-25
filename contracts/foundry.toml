@@ -1,0 +1,28 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+# Latest stable solc supported by OpenZeppelin at the pinned commit (its own foundry.toml uses 0.8.35).
+solc_version = "0.8.35"
+# Prague rather than Osaka: Base (target L2) supports Prague opcodes.
+evm_version = "prague"
+optimizer = true
+optimizer_runs = 200
+fs_permissions = [{ access = "read-write", path = "./deployments" }]
+remappings = [
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "forge-std/=lib/forge-std/src/",
+]
+
+[fuzz]
+runs = 256
+
+[invariant]
+runs = 64
+depth = 64
+fail_on_revert = false
+
+[fmt]
+line_length = 120
