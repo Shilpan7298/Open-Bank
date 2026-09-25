@@ -675,63 +675,63 @@
    "module": "ScoreOracle",
    "type": "unit",
    "description": "accepts an attestation + EIP-712 signature from a registered scorer",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-02",
    "module": "ScoreOracle",
    "type": "unit",
    "description": "rejects unregistered signers",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-03",
    "module": "ScoreOracle",
    "type": "unit",
    "description": "rejects wrong schema, revoked attestation, recipient != borrower",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-04",
    "module": "ScoreOracle",
    "type": "unit",
    "description": "expired scores are rejected and stop counting",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-05",
    "module": "ScoreOracle",
    "type": "unit",
    "description": "quorum counts each scorer once",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-06",
    "module": "ScoreOracle",
    "type": "unit",
    "description": "consensus takes the most conservative band, PD and cover",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-07",
    "module": "ScoreOracle",
    "type": "unit",
    "description": "signatures for another chain or verifying contract are rejected",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-08",
    "module": "ScoreOracle",
    "type": "unit",
    "description": "a deregistered scorer's scores stop counting",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SO-09",
    "module": "ScoreOracle",
    "type": "fuzz",
    "description": "bands outside 1-5 are rejected",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "GOV-01",

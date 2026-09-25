@@ -34,11 +34,13 @@ interface IScoreOracle {
     error UnregisteredScorer(address signer);
     error ScoreExpired();
     error InvalidBand(uint8 band);
-    error DuplicateScore(address scorer);
+    error StaleScore(address scorer);
     error TooManyScores();
+    error InvalidScore();
 
     /// @notice Submit a score attestation and the scorer's EIP-712 signature over its Score. Callable by anyone
-    /// (e.g. a relayer); the signer must be a registered scorer, and each scorer counts once per loan.
+    /// (e.g. a relayer); the signer must be a registered scorer. Each scorer holds one score per loan: a newer
+    /// attestation replaces an older one, an older one reverts.
     function submitScore(bytes32 attestationUid, bytes calldata signature) external;
 
     /// @notice Aggregate currently valid scores for (`loanId`, `borrower`). Scores from deregistered scorers
