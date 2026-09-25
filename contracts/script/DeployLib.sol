@@ -15,6 +15,7 @@ import {ReserveVault} from "../src/ReserveVault.sol";
 import {LossWaterfall} from "../src/LossWaterfall.sol";
 import {ScoreOracle} from "../src/ScoreOracle.sol";
 import {LoanRegistry} from "../src/LoanRegistry.sol";
+import {LenderVault} from "../src/LenderVault.sol";
 import {MockUSDC} from "../src/mocks/MockUSDC.sol";
 import {MockEAS} from "../src/mocks/MockEAS.sol";
 import {MockSanctionsOracle} from "../src/mocks/MockSanctionsOracle.sol";
@@ -52,6 +53,7 @@ library DeployLib {
         LossWaterfall waterfall;
         ScoreOracle scoreOracle;
         LoanRegistry registry;
+        LenderVault lenderVault; // band 2 vault; allocator role granted separately
     }
 
     function deploy(Config memory c) internal returns (System memory s) {
@@ -61,6 +63,9 @@ library DeployLib {
         s.timelock = new TimelockController(c.timelockDelay, c.proposers, c.proposers, address(0));
         _deployModules(s, c);
         _deployRegistry(s, c);
+        s.lenderVault = new LenderVault(
+            c.admin, c.guardian, s.usdc, s.registry, s.auction, s.gate, 2, "OBP Lender Vault Band 2", "obpLV2"
+        );
         _wire(s);
     }
 
@@ -115,7 +120,7 @@ library DeployLib {
     }
 
     /// @notice Every governed contract, for hand-over and governance tests.
-    function modules(System memory s) internal pure returns (AccessControl[11] memory m) {
+    function modules(System memory s) internal pure returns (AccessControl[12] memory m) {
         m = [
             AccessControl(s.gate),
             s.credit,
@@ -127,13 +132,14 @@ library DeployLib {
             s.reserve,
             s.waterfall,
             s.scoreOracle,
-            s.registry
+            s.registry,
+            s.lenderVault
         ];
     }
 
     /// @notice Give the timelock DEFAULT_ADMIN_ROLE everywhere and renounce `admin`'s.
     function handOver(System memory s, address admin) internal {
-        AccessControl[11] memory m = modules(s);
+        AccessControl[12] memory m = modules(s);
         bytes32 adminRole = 0x00;
         for (uint256 i; i < m.length; i++) {
             m[i].grantRole(adminRole, address(s.timelock));

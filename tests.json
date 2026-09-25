@@ -437,56 +437,56 @@
    "module": "LenderVault",
    "type": "unit",
    "description": "ERC-4626 deposit/withdraw with sanctions checks",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LV-02",
    "module": "LenderVault",
    "type": "unit",
    "description": "only the allocator bids; loan must be Open and in the vault band",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LV-03",
    "module": "LenderVault",
    "type": "unit",
    "description": "per-borrower and total deployment caps",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LV-04",
    "module": "LenderVault",
    "type": "unit",
    "description": "harvest after repayment recognises interest and closes the position",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LV-05",
    "module": "LenderVault",
    "type": "unit",
    "description": "a default is reflected in totalAssets immediately and realised on harvest",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LV-06",
    "module": "LenderVault",
    "type": "unit",
    "description": "withdrawals are limited to idle cash",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LV-07",
    "module": "LenderVault",
    "type": "unit",
    "description": "first-depositor inflation attack is unprofitable",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LV-08",
    "module": "LenderVault",
    "type": "fuzz",
    "description": "totalAssets equals idle plus the sum of position values",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-01",
