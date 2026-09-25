@@ -115,112 +115,112 @@
    "module": "CollateralEscrow",
    "type": "unit",
    "description": "deposit pulls collateral and tracks it per loan; registry only",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CE-02",
    "module": "CollateralEscrow",
    "type": "unit",
    "description": "release returns all collateral of a loan; registry only",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CE-03",
    "module": "CollateralEscrow",
    "type": "fuzz",
    "description": "seize sends min(loss, collateral) and leaves the remainder for the borrower",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CE-04",
    "module": "CollateralEscrow",
    "type": "fuzz",
    "description": "escrow token balance equals the sum of collateralOf across loans",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-01",
    "module": "VouchingModule",
    "type": "unit",
    "description": "stake creates or grows a slice and deposits into the stake vault",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-02",
    "module": "VouchingModule",
    "type": "unit",
    "description": "borrower, sanctioned and delinquent addresses cannot vouch",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-03",
    "module": "VouchingModule",
    "type": "unit",
    "description": "minimum slice and cover cap (loan principal) are enforced",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-04",
    "module": "VouchingModule",
    "type": "unit",
    "description": "unstake works while Open or Cancelled and reverts once Locked",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-05",
    "module": "VouchingModule",
    "type": "unit",
    "description": "lockCover returns total cover principal; stake after lock or after deadline reverts",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-06",
    "module": "VouchingModule",
    "type": "unit",
    "description": "after release vouchers claim stake + vault yield + premium pro rata",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-07",
    "module": "VouchingModule",
    "type": "unit",
    "description": "after a partial loss vouchers claim the remainder pro rata",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-08",
    "module": "VouchingModule",
    "type": "fuzz",
    "description": "absorbLoss takes min(loss, stake value); claims never exceed what is left (rounding favours protocol)",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-09",
    "module": "VouchingModule",
    "type": "invariant",
    "description": "stakes backing a Locked loan can never be withdrawn or claimed",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-10",
    "module": "VouchingModule",
    "type": "unit",
    "description": "voucher stats count backed, repaid, defaulted and value lost",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "VM-11",
    "module": "VouchingModule",
    "type": "unit",
    "description": "a sanctioned voucher cannot claim",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SV-01",
    "module": "StakeVault",
    "type": "unit",
    "description": "only authorised depositors can deposit; donated yield accrues to share price",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-01",

@@ -18,6 +18,7 @@ interface IVouchingModule {
     struct Cover {
         address borrower;
         CoverState state;
+        uint64 deadline; // staking and unstaking close at this time (auction end)
         uint256 maxCover; // cap on total staked principal (loan principal)
         uint256 coverPrincipal; // sum of slice principals
         uint256 shares; // stake vault shares held for this loan
@@ -55,16 +56,19 @@ interface IVouchingModule {
     error CoverCapExceeded(uint256 requested, uint256 room);
     error NoSlice();
     error AlreadyClaimed();
+    error DeadlinePassed();
 
     /// @notice Start collecting slices for `loanId`. Loan registry only.
     /// @param maxCover Cap on total staked principal (the loan principal).
-    function openCover(uint256 loanId, address borrower, uint256 maxCover) external;
+    /// @param deadline Staking and unstaking close at this time, so cover cannot be pulled between the end of
+    /// the auction and settlement.
+    function openCover(uint256 loanId, address borrower, uint256 maxCover, uint64 deadline) external;
 
     /// @notice Stake `assets` behind `loanId`. Caller must not be the borrower, sanctioned or delinquent.
     /// Adds to the caller's existing slice for this loan.
     function stake(uint256 loanId, uint256 assets) external;
 
-    /// @notice Withdraw the caller's slice while cover is Open or Cancelled.
+    /// @notice Withdraw the caller's slice while cover is Open (before the deadline) or Cancelled.
     function unstake(uint256 loanId) external;
 
     /// @notice Make all slices irrevocable at loan funding. Loan registry only.
