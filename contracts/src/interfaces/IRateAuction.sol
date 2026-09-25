@@ -33,9 +33,9 @@ interface IRateAuction {
     struct Bid {
         address lender;
         uint16 rateBps;
-        bool refunded;
         uint256 amount;
         uint256 filled;
+        uint256 refunded; // cumulative amount refunded
     }
 
     event AuctionOpened(uint256 indexed loanId, uint256 principal, uint16 maxRateBps, uint64 endTime, uint256 minBid);
@@ -54,8 +54,8 @@ interface IRateAuction {
     error BidTooSmall(uint256 amount, uint256 minBid);
     error TooManyBids(uint256 loanId);
     error BorrowerCannotBid();
-    error NotBidder();
     error NothingToRefund();
+    error InvalidAuction();
 
     /// @notice Open the auction for `loanId`. Loan registry only.
     function openAuction(uint256 loanId, address borrower, uint256 principal, uint16 maxRateBps, uint64 endTime)

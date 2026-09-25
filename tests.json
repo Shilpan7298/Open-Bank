@@ -227,70 +227,70 @@
    "module": "RateAuction",
    "type": "unit",
    "description": "placeBid escrows funds; rate on tick and <= max; minimum bid; borrower and sanctioned cannot bid",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-02",
    "module": "RateAuction",
    "type": "unit",
    "description": "clears at the lowest tick where cumulative bids reach principal; lower ticks fill fully, higher refund",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-03",
    "module": "RateAuction",
    "type": "unit",
    "description": "marginal tick fills pro rata, rounded up",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-04",
    "module": "RateAuction",
    "type": "unit",
    "description": "an under-subscribed auction fails and refunds every bid",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-05",
    "module": "RateAuction",
    "type": "unit",
    "description": "cancel after clearing makes every bid fully refundable",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-06",
    "module": "RateAuction",
    "type": "unit",
    "description": "disburse sends exactly the principal; unfilled parts stay refundable",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-07",
    "module": "RateAuction",
    "type": "fuzz",
    "description": "clearing properties: filled rates <= clearing rate, no bid below it unfilled, P <= totalFilled <= P + marginal bids",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-08",
    "module": "RateAuction",
    "type": "fuzz",
    "description": "solvency: balance covers every refundable amount after settle and disburse",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-09",
    "module": "RateAuction",
    "type": "unit",
    "description": "MAX_BIDS limit and minBid = ceil(P / MAX_BIDS)",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RA-10",
    "module": "RateAuction",
    "type": "unit",
    "description": "a bid cannot be refunded twice; bids after end revert",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LR-01",
