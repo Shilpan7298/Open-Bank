@@ -9,6 +9,7 @@ import {ProtocolAccess} from "./libraries/ProtocolAccess.sol";
 import {BPS, Tier, Tranche} from "./libraries/Types.sol";
 import {IInsuranceBasket} from "./interfaces/IInsuranceBasket.sol";
 import {IIdentityGate} from "./interfaces/IIdentityGate.sol";
+import {ILoanRegistry} from "./interfaces/ILoanRegistry.sol";
 
 /// @title InsuranceBasket
 /// @notice See {IInsuranceBasket}. Written from the designs in docs/upstream-notes/huma.md and nexus.md (no code
@@ -30,6 +31,7 @@ contract InsuranceBasket is IInsuranceBasket, ProtocolAccess, ReentrancyGuard {
 
     IERC20 public immutable asset;
     IIdentityGate public immutable gate;
+    ILoanRegistry public loanRegistry;
     Params public params;
 
     struct Basket {
@@ -48,6 +50,8 @@ contract InsuranceBasket is IInsuranceBasket, ProtocolAccess, ReentrancyGuard {
     mapping(uint256 basketId => mapping(Tranche => uint256)) private _heads;
     mapping(address owner => uint256) private _claimable;
     uint256 public totalClaimable;
+    mapping(uint256 loanId => bool) public lateFlagged;
+    mapping(uint256 basketId => uint256) public lateCount;
 
     constructor(address admin, address guardian, IERC20 asset_, IIdentityGate gate_) ProtocolAccess(admin, guardian) {
         asset = asset_;
@@ -112,6 +116,8 @@ contract InsuranceBasket is IInsuranceBasket, ProtocolAccess, ReentrancyGuard {
         nonReentrant
         returns (uint256 processed)
     {
+        // Security H-2: no exits while a covered loan is late, so insurers cannot leave ahead of a known loss.
+        if (lateCount[basketId] > 0) revert LateLoansOutstanding(basketId, lateCount[basketId]);
         WithdrawalRequest[] storage q = _queues[basketId][tranche];
         TrancheState storage t = _baskets[basketId].tranches[uint8(tranche)];
         uint256 head = _heads[basketId][tranche];
@@ -239,6 +245,28 @@ contract InsuranceBasket is IInsuranceBasket, ProtocolAccess, ReentrancyGuard {
         emit LossAbsorbed(loanId, junior, senior);
     }
 
+    /// @inheritdoc IInsuranceBasket
+    function flagLate(uint256 loanId) external {
+        CoverRecord storage c = _covers[loanId];
+        if (c.exposure == 0 || lateFlagged[loanId] || !loanRegistry.isLate(loanId)) revert NotLate(loanId);
+        lateFlagged[loanId] = true;
+        lateCount[c.basketId] += 1;
+        emit LateFlagged(loanId, true);
+    }
+
+    /// @inheritdoc IInsuranceBasket
+    function clearLate(uint256 loanId) external {
+        if (!lateFlagged[loanId] || loanRegistry.isLate(loanId)) revert NotLate(loanId);
+        _unflag(loanId, _covers[loanId].basketId);
+    }
+
+    /// @inheritdoc IInsuranceBasket
+    function setLoanRegistry(address registry) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (address(loanRegistry) != address(0)) revert RegistryAlreadySet();
+        if (registry == address(0)) revert ZeroAddress();
+        loanRegistry = ILoanRegistry(registry);
+    }
+
     // ---------------------------------------------------------------- views
 
     /// @inheritdoc IInsuranceBasket
@@ -347,12 +375,19 @@ contract InsuranceBasket is IInsuranceBasket, ProtocolAccess, ReentrancyGuard {
         CoverRecord memory c = _covers[loanId];
         exposure = c.exposure;
         if (exposure == 0) return 0;
+        if (lateFlagged[loanId]) _unflag(loanId, c.basketId);
         uint256[3] memory keys = [uint256(c.country), uint256(c.sector), uint256(c.month)];
         for (uint8 d; d < DIMENSIONS; d++) {
             _subKey(c.basketId, d, keys[d], exposure);
         }
         _baskets[c.basketId].exposure -= exposure;
         delete _covers[loanId];
+    }
+
+    function _unflag(uint256 loanId, uint256 basketId) internal {
+        lateFlagged[loanId] = false;
+        lateCount[basketId] -= 1;
+        emit LateFlagged(loanId, false);
     }
 
     function _addKey(uint256 basketId, uint8 d, uint256 key, uint256 amount) internal {

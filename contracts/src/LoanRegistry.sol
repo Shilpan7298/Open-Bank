@@ -336,6 +336,12 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
     }
 
     /// @inheritdoc ILoanRegistry
+    function isLate(uint256 loanId) external view returns (bool) {
+        if (_loans[loanId].state != LoanState.Active) return false;
+        return _dues[loanId].repaid < amountDueBy(loanId, block.timestamp);
+    }
+
+    /// @inheritdoc ILoanRegistry
     function isDefaultable(uint256 loanId) public view returns (bool) {
         if (_loans[loanId].state != LoanState.Active) return false;
         uint256 grace = params.defaultGracePeriod;

@@ -105,6 +105,7 @@ library DeployLib {
         address reg = address(s.registry);
         address wf = address(s.waterfall);
         s.reserve.setLoanRegistry(reg);
+        s.basket.setLoanRegistry(reg);
         s.stakeVault.grantRole(s.stakeVault.DEPOSITOR_ROLE(), address(s.vouching));
         s.credit.grantRole(s.credit.REGISTRY_ROLE(), reg);
         s.escrow.grantRole(s.escrow.REGISTRY_ROLE(), reg);

@@ -131,14 +131,25 @@ contract LenderVault is ILenderVault, ERC4626, ProtocolAccess, ReentrancyGuard {
         }
     }
 
-    /// @notice Loans are illiquid: exits are limited to idle cash.
+    /// @notice Loans are illiquid: exits are limited to idle cash, and paused while any position is late.
     function maxWithdraw(address owner) public view override(ERC4626, IERC4626) returns (uint256) {
+        if (hasLatePosition()) return 0;
         return Math.min(super.maxWithdraw(owner), _idle);
     }
 
-    /// @notice Loans are illiquid: exits are limited to idle cash.
+    /// @notice Loans are illiquid: exits are limited to idle cash, and paused while any position is late.
     function maxRedeem(address owner) public view override(ERC4626, IERC4626) returns (uint256) {
+        if (hasLatePosition()) return 0;
         return Math.min(super.maxRedeem(owner), _convertToShares(_idle, Math.Rounding.Floor));
+    }
+
+    /// @notice True while any open position's loan has missed an installment. Exits are paused so depositors
+    /// cannot leave at a stale price ahead of a likely default (security H-2).
+    function hasLatePosition() public view returns (bool) {
+        for (uint256 i; i < _open.length; i++) {
+            if (registry.isLate(_open[i])) return true;
+        }
+        return false;
     }
 
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares)

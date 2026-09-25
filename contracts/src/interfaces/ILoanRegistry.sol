@@ -154,6 +154,10 @@ interface ILoanRegistry {
     /// @notice Cumulative amount that must have been repaid by time `t`.
     function amountDueBy(uint256 loanId, uint256 t) external view returns (uint256);
 
+    /// @notice True if an Active loan has missed an installment (before any grace). Insurers and vaults use it to
+    /// stop exits ahead of a likely loss.
+    function isLate(uint256 loanId) external view returns (bool);
+
     /// @notice True if `markDefault` would succeed now.
     function isDefaultable(uint256 loanId) external view returns (bool);
 
