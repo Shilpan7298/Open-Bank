@@ -2,7 +2,7 @@ import { execFileSync, spawn, spawnSync, type ChildProcess } from "node:child_pr
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createPublicClient, createWalletClient, encodeAbiParameters, http, type Address, type PublicClient } from "viem";
+import { createPublicClient, createWalletClient, encodeAbiParameters, http, keccak256, type Address, type PublicClient } from "viem";
 import { foundry } from "viem/chains";
 import { mnemonicToAccount } from "viem/accounts";
 import { abis, loadDeployment, publishScore, readVerifiedData, type Deployment } from "../src/chain.js";
@@ -54,7 +54,7 @@ describe.skipIf(!hasFoundry)("UW-07: score, sign and attest on Anvil; ScoreOracl
       address: d.eas,
       abi: abis.eas,
       functionName: "attest",
-      args: [identitySchema, borrower.address, 0n, encodeAbiParameters([{ type: "uint256" }], [1n])],
+      args: [identitySchema, borrower.address, 0n, encodeAbiParameters([{ type: "uint256" }, { type: "bytes32" }], [1n, keccak256(borrower.address)])],
     });
     await client.waitForTransactionReceipt({ hash: await wallet(attester).writeContract(att.request) });
     const reg = await client.simulateContract({
