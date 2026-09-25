@@ -10,105 +10,105 @@
    "module": "IdentityGate",
    "type": "unit",
    "description": "registerIdentity accepts a valid attestation from a trusted attester and stores the country",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IG-02",
    "module": "IdentityGate",
    "type": "unit",
    "description": "registerIdentity rejects wrong schema, untrusted attester, recipient != caller, revoked, expired",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IG-03",
    "module": "IdentityGate",
    "type": "unit",
    "description": "borrowerProfile reverts once the attestation is revoked or its attester is untrusted",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IG-04",
    "module": "IdentityGate",
    "type": "unit",
    "description": "unmapped country is tier C, mapped countries return A/B, Blocked reverts",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IG-05",
    "module": "IdentityGate",
    "type": "unit",
    "description": "sanctioned account fails borrowerProfile and requireNotSanctioned",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IG-06",
    "module": "IdentityGate",
    "type": "fuzz",
    "description": "requireNotSanctioned reverts iff the oracle lists the account",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IG-07",
    "module": "IdentityGate",
    "type": "unit",
    "description": "a Blocked country reopens when governance remaps it (sanctions lifted)",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CR-01",
    "module": "CreditRegistry",
    "type": "unit",
    "description": "new borrower is stage New with the tier base limit",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CR-02",
    "module": "CreditRegistry",
    "type": "unit",
    "description": "each repaid loan steps the limit up to the tier max; stage thresholds apply",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CR-03",
    "module": "CreditRegistry",
    "type": "unit",
    "description": "a default drops the credit limit to zero",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CR-04",
    "module": "CreditRegistry",
    "type": "unit",
    "description": "onLoanFunded reverts beyond available credit; cancel and repay release outstanding",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CR-05",
    "module": "CreditRegistry",
    "type": "unit",
    "description": "requirementsFor returns the stage x tier table",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CR-06",
    "module": "CreditRegistry",
    "type": "unit",
    "description": "setRequirement rejects collateral below 20% and cover above 100%",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CR-07",
    "module": "CreditRegistry",
    "type": "fuzz",
    "description": "outstanding principal never exceeds the credit limit through onLoanFunded",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CR-08",
    "module": "CreditRegistry",
    "type": "unit",
    "description": "only the loan registry role can record loan events",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "CE-01",

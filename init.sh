@@ -34,6 +34,9 @@ else
   # binaries.soliditylang.org unreachable: fall back to solc-js behind a solc CLI shim.
   (cd tools/solcjs && npm ci --silent)
   export FOUNDRY_SOLC="$ROOT/tools/solcjs/solc"
+  # forge also reads contracts/.env (gitignored), so plain `forge` commands keep working in this checkout.
+  touch contracts/.env
+  grep -q '^FOUNDRY_SOLC=' contracts/.env || echo "FOUNDRY_SOLC=$FOUNDRY_SOLC" >> contracts/.env
   echo "solc-js fallback: $FOUNDRY_SOLC"
 fi
 
