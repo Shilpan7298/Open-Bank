@@ -11,9 +11,11 @@
   "scripts": {
     "build": "tsc -p .",
     "typecheck": "tsc -p . --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "score": "tsc -p . && node dist/src/cli.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "viem": "^2.56.9",
     "zod": "^4.6.5"
   },

@@ -21,6 +21,6 @@ contract DeployScriptTest is Test {
         assertTrue(s.vouching.hasRole(s.vouching.REGISTRY_ROLE(), address(s.registry)));
         assertTrue(s.stakeVault.hasRole(s.stakeVault.DEPOSITOR_ROLE(), address(s.vouching)));
         assertEq(address(s.reserve.loanRegistry()), address(s.registry));
-        assertTrue(s.scoreOracle.isScorer(vm.addr(0x5de4111afa1a4b94908f83103eb1d1706367c2e68ca870fc3fb9a804cdab365a)));
+        assertTrue(s.scoreOracle.isScorer(vm.addr(0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a)));
     }
 }

@@ -14,7 +14,7 @@ contract Deploy is Script {
     // Anvil default accounts 0, 1 and 2 (public test keys).
     uint256 internal constant ANVIL_PK0 = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
     uint256 internal constant ANVIL_PK1 = 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d;
-    uint256 internal constant ANVIL_PK2 = 0x5de4111afa1a4b94908f83103eb1d1706367c2e68ca870fc3fb9a804cdab365a;
+    uint256 internal constant ANVIL_PK2 = 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a;
 
     function run() external returns (DeployLib.System memory s) {
         uint256 pk = vm.envOr("DEPLOYER_PK", ANVIL_PK0);

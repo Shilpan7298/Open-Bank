@@ -906,42 +906,42 @@
    "module": "Underwriter",
    "type": "unit",
    "description": "prompt puts verified data first and wraps the proposal in delimited tags with an injection warning",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "UW-03",
    "module": "Underwriter",
    "type": "unit",
    "description": "mock mode is deterministic and needs no API key",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "UW-04",
    "module": "Underwriter",
    "type": "unit",
    "description": "EIP-712 signature matches ScoreOracle's digest (shared test vector)",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "UW-05",
    "module": "Underwriter",
    "type": "unit",
    "description": "attestation data encodes the Score struct exactly as ScoreOracle decodes it",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "UW-06",
    "module": "Underwriter",
    "type": "unit",
    "description": "invalid model output is rejected and never signed",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "UW-07",
    "module": "Underwriter",
    "type": "e2e",
    "description": "service scores, signs and attests on Anvil; ScoreOracle accepts it",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SIM-01",
