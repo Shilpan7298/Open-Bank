@@ -10,6 +10,9 @@ interface IReserveVault {
     event LossCovered(uint256 requested, uint256 paid, address indexed to);
     event ExcessRebated(address indexed to, uint256 amount);
     event ParamsSet(uint16 feeBps, uint16 capBps, address rebateRecipient);
+    event LoanRegistrySet(address registry);
+
+    error RegistryAlreadySet();
 
     /// @notice Take the reserve fee for a loan of `principal` from the caller, reduced so reserve assets stay
     /// within the cap (outstanding principal must already include this loan). Loan registry only.
@@ -36,4 +39,7 @@ interface IReserveVault {
 
     /// @notice Set fee (100-200 bps), cap (<= 500 bps) and rebate recipient. Timelock only.
     function setParams(uint16 feeBps, uint16 capBps, address rebateRecipient) external;
+
+    /// @notice Set the loan registry that reports outstanding principal. Timelock only, once.
+    function setLoanRegistry(address registry) external;
 }

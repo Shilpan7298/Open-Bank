@@ -584,42 +584,42 @@
    "module": "ReserveVault",
    "type": "unit",
    "description": "collectFee takes feeBps of principal below the cap",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RV-02",
    "module": "ReserveVault",
    "type": "unit",
    "description": "fee is reduced to the room under the cap",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RV-03",
    "module": "ReserveVault",
    "type": "unit",
    "description": "sync rebates the excess when outstanding principal falls",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RV-04",
    "module": "ReserveVault",
    "type": "unit",
    "description": "coverLoss pays min(amount, reserve assets)",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RV-05",
    "module": "ReserveVault",
    "type": "fuzz",
    "description": "reserve assets never exceed the cap after fee intake or sync",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "RV-06",
    "module": "ReserveVault",
    "type": "unit",
    "description": "parameter bounds: fee 1-2%, cap <= 5%",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "LW-01",
