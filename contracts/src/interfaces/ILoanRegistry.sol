@@ -62,7 +62,9 @@ interface ILoanRegistry {
     event CollateralPosted(uint256 indexed loanId, uint256 amount);
     event LoanFunded(uint256 indexed loanId, uint16 rateBps, uint256 totalDue, uint256 insuredExposure);
     event LoanCancelled(uint256 indexed loanId, bytes32 reason);
-    event LoanDrawn(uint256 indexed loanId, bytes32 agreementHash, uint256 reserveFee, uint256 disbursed);
+    event LoanDrawn(
+        uint256 indexed loanId, bytes32 agreementHash, uint256 reserveFee, uint256 disbursed, address indexed recipient
+    );
     event Repaid(uint256 indexed loanId, address indexed payer, uint256 amount, uint256 totalRepaid);
     event LoanRepaid(uint256 indexed loanId);
     event LoanDefaulted(uint256 indexed loanId, uint256 loss, uint256 recovered);
@@ -118,10 +120,17 @@ interface ILoanRegistry {
     /// Borrower only, before the drawdown deadline.
     function drawdown(uint256 loanId, bytes32 agreementHash) external;
 
+    /// @notice Like `drawdown`, but pays the principal to `recipient` instead of the borrower's wallet: for example
+    /// an exchange, mobile-money or P2P off-ramp partner that pays the borrower in local cash, or a supplier the
+    /// borrower is buying from. The borrower still signs and still owes the loan. `recipient` must not be
+    /// sanctioned. Borrower only, before the drawdown deadline.
+    function drawdownTo(uint256 loanId, bytes32 agreementHash, address recipient) external;
+
     /// @notice Cancel a funded loan the borrower did not draw down in time. Callable by anyone.
     function cancelExpired(uint256 loanId) external;
 
-    /// @notice Repay up to the remaining total due. Callable by anyone. Always allowed while Active.
+    /// @notice Repay up to the remaining total due. Callable by anyone (the borrower, an employer, family sending
+    /// remittances, or a cash-in agent paying on the borrower's behalf). Always allowed while Active.
     function repay(uint256 loanId, uint256 amount) external;
 
     /// @notice Declare default when an installment is unpaid for longer than the default grace period, and run

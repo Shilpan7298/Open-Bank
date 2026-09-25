@@ -1,9 +1,13 @@
 {
-  "_meta": { "language": "English", "code": "en", "dir": "ltr", "status": "source" },
+  "_meta": {
+    "language": "English",
+    "code": "en",
+    "dir": "ltr",
+    "status": "source"
+  },
   "messages": {
     "app.name": "Open Banking Protocol",
     "app.tagline": "Community-backed loans for people banks leave out.",
-
     "loan.state.proposed": "Proposed",
     "loan.state.open": "Collecting backing and bids",
     "loan.state.funded": "Funded, waiting for your signature",
@@ -11,7 +15,6 @@
     "loan.state.repaid": "Repaid",
     "loan.state.defaulted": "Defaulted",
     "loan.state.cancelled": "Cancelled",
-
     "loan.cancel_reason.AUCTION_FAILED": "Lenders did not offer the full amount at or below your maximum interest rate. Nobody lost money; you can try again.",
     "loan.cancel_reason.IDENTITY": "Your identity check was no longer valid when the loan was about to be funded.",
     "loan.cancel_reason.SCORE": "The risk score expired or was withdrawn before funding. Ask for a new score.",
@@ -21,14 +24,12 @@
     "loan.cancel_reason.CREDIT_LIMIT": "This loan is bigger than your current credit limit of {limit}. Repaying loans raises your limit.",
     "loan.cancel_reason.INSURANCE_CAPACITY": "The insurance pool for loans like this was full. Try a smaller amount or add backing.",
     "loan.cancel_reason.DRAWDOWN_EXPIRED": "The loan agreement was not signed in time, so the money went back to the lenders.",
-
     "error.sanctioned": "This wallet cannot use the protocol because it is on a sanctions list.",
     "error.not_verified": "Please complete identity verification first.",
     "error.jurisdiction_blocked": "Loans are not available in your country at the moment.",
     "error.exceeds_credit_limit": "The amount is above your credit limit of {limit}.",
     "error.below_min_slice": "The smallest amount you can vouch is {min}.",
     "error.bid_too_small": "The smallest bid for this loan is {min}.",
-
     "concept.collateral": "Money you lock yourself. You get it back when the loan is repaid.",
     "concept.voucher": "A person who trusts you and locks their own money to back your loan. They earn a fee when you repay and lose part of their stake if you do not.",
     "concept.insurance_pool": "A shared pool that pays lenders if a loan is not repaid, after your collateral and your vouchers.",
@@ -38,11 +39,19 @@
     "concept.installment": "A regular payment. Your loan is paid back in equal installments.",
     "concept.default": "When payments stop for too long. Your collateral is used first, then your vouchers' stakes.",
     "concept.currency_risk": "Your loan is in dollars. If your local currency falls, each installment costs more in local money.",
-
     "repay.next_due": "Next payment: {amount} by {date}",
     "repay.late_warning": "Your payment is late. If it stays unpaid for {days} days, the loan defaults and your vouchers lose money.",
-
     "underwriter.summary": "Risk level {band} of 5 (1 is the lowest risk). Estimated chance of not repaying: {pd}. Suggested voucher backing: {cover} of the loan.",
-    "underwriter.disclaimer": "This score is advice for lenders, not a decision. People decide whether to fund your loan."
+    "underwriter.disclaimer": "This score is advice for lenders, not a decision. People decide whether to fund your loan.",
+    "loan.purpose.1": "Stock for a shop or small business",
+    "loan.purpose.2": "Farming: seeds, fertiliser, irrigation",
+    "loan.purpose.3": "Livestock",
+    "loan.purpose.4": "School or university fees",
+    "loan.purpose.5": "Medical costs",
+    "loan.purpose.6": "Home repair or building",
+    "loan.purpose.7": "Tools or work equipment",
+    "loan.purpose.8": "Motorbike, rickshaw or vehicle for work",
+    "loan.purpose.9": "Emergency",
+    "loan.purpose.10": "Other business need"
   }
 }

@@ -195,10 +195,25 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
 
     /// @inheritdoc ILoanRegistry
     function drawdown(uint256 loanId, bytes32 agreementHash) external whenNotPaused nonReentrant {
+        _drawdown(loanId, agreementHash, msg.sender);
+    }
+
+    /// @inheritdoc ILoanRegistry
+    function drawdownTo(uint256 loanId, bytes32 agreementHash, address recipient)
+        external
+        whenNotPaused
+        nonReentrant
+    {
+        _drawdown(loanId, agreementHash, recipient);
+    }
+
+    function _drawdown(uint256 loanId, bytes32 agreementHash, address recipient) internal {
         Loan storage l = _requireBorrowerState(loanId, LoanState.Funded);
         if (block.timestamp > l.drawdownDeadline) revert DrawdownExpired(loanId);
         if (agreementHash == bytes32(0)) revert EmptyAgreement();
         gate.borrowerProfile(msg.sender); // payout: identity still valid, not sanctioned, not blocked
+        if (recipient == address(0)) revert ZeroAddress();
+        if (recipient != msg.sender) gate.requireNotSanctioned(recipient);
 
         uint256 p = l.principal;
         l.agreementHash = agreementHash;
@@ -209,8 +224,8 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         auction.disburse(loanId);
         uint256 fee = reserve.collectFee(p);
         _dues[loanId].reserveFee = fee;
-        asset.safeTransfer(msg.sender, p - fee);
-        emit LoanDrawn(loanId, agreementHash, fee, p - fee);
+        asset.safeTransfer(recipient, p - fee);
+        emit LoanDrawn(loanId, agreementHash, fee, p - fee, recipient);
     }
 
     /// @inheritdoc ILoanRegistry

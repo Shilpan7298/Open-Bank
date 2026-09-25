@@ -970,6 +970,20 @@
    "type": "unit",
    "description": "every catalog has the English keys and placeholders, valid metadata, and a message for every LoanRegistry cancel reason",
    "status": "passing"
+  },
+  {
+   "id": "LR-21",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "drawdownTo pays an off-ramp partner or supplier; recipient sanctions-screened; debt stays with the borrower",
+   "status": "passing"
+  },
+  {
+   "id": "LR-22",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "anyone (employer, relative, cash-in agent) can repay on the borrower's behalf and the borrower's record improves",
+   "status": "passing"
   }
  ]
 }

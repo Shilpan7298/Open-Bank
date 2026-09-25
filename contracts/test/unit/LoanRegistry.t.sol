@@ -418,3 +418,55 @@ contract LoanRegistryTest is SystemFixture {
         s.registry.claim(id);
     }
 }
+
+/// Real-economy use: money arrives where the borrower can spend it, and repayment can come from anyone.
+contract RealEconomyTest is SystemFixture {
+    address offRamp = makeAddr("mobileMoneyOffRamp");
+
+    // LR-21
+    function test_drawdownToOffRampPartner() public {
+        uint256 id = _fundedLoan();
+        uint256 before = s.usdc.balanceOf(borrower);
+        vm.prank(borrower);
+        s.registry.drawdownTo(id, keccak256("agreement"), offRamp);
+        assertEq(s.usdc.balanceOf(offRamp), P - 15e6);
+        assertEq(s.usdc.balanceOf(borrower), before); // the borrower's wallet is not involved
+        assertEq(uint8(_state(id)), uint8(LoanState.Active));
+        assertEq(s.registry.loanOf(id).borrower, borrower); // the debt stays with the borrower
+    }
+
+    function test_drawdownToRejectsSanctionedOrZero() public {
+        uint256 id = _fundedLoan();
+        vm.prank(borrower);
+        vm.expectRevert();
+        s.registry.drawdownTo(id, keccak256("a"), address(0));
+        s.sanctions.setSanctioned(offRamp, true);
+        vm.prank(borrower);
+        vm.expectRevert(abi.encodeWithSelector(IIdentityGate.Sanctioned.selector, offRamp));
+        s.registry.drawdownTo(id, keccak256("a"), offRamp);
+        vm.prank(offRamp);
+        vm.expectRevert(ILoanRegistry.NotBorrower.selector); // only the borrower chooses where money goes
+        s.registry.drawdownTo(id, keccak256("a"), offRamp);
+    }
+
+    // LR-22
+    function test_anyoneCanRepayOnBehalf() public {
+        uint256 id = _activeLoan();
+        address relative = makeAddr("relativeAbroad");
+        address agent = makeAddr("cashInAgent");
+        ILoanRegistry.Dues memory d = s.registry.duesOf(id);
+        s.usdc.mint(relative, d.totalDue);
+        s.usdc.mint(agent, d.totalDue);
+        vm.startPrank(relative);
+        s.usdc.approve(address(s.registry), type(uint256).max);
+        s.registry.repay(id, d.totalDue / 2);
+        vm.stopPrank();
+        vm.startPrank(agent);
+        s.usdc.approve(address(s.registry), type(uint256).max);
+        s.registry.repay(id, d.totalDue);
+        vm.stopPrank();
+        assertEq(uint8(_state(id)), uint8(LoanState.Repaid));
+        assertEq(s.credit.historyOf(borrower).repaidLoans, 1); // the borrower's record improves
+        assertEq(s.usdc.balanceOf(agent), d.totalDue - (d.totalDue - d.totalDue / 2)); // overpayment capped
+    }
+}

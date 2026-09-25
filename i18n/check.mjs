@@ -18,6 +18,12 @@ for (const [, code] of registry.matchAll(/REASON_\w+ = "(\w+)"/g)) {
   if (!(`loan.cancel_reason.${code}` in en.messages)) errors.push(`en: missing loan.cancel_reason.${code}`);
 }
 
+// Loan purpose codes 1..N are the `sector` codes used on-chain (they also drive basket concentration caps).
+for (let i = 1; `loan.purpose.${i}` in en.messages || i === 1; i++) {
+  if (!(`loan.purpose.${i}` in en.messages)) errors.push(`en: missing loan.purpose.${i}`);
+  if (i > 100) break;
+}
+
 const files = readdirSync(here).filter((f) => f.endsWith(".json"));
 for (const f of files) {
   const c = load(f);
