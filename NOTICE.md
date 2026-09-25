@@ -15,4 +15,4 @@ Libraries used unmodified as dependencies (not adapted, not listed per file):
 
 | OBP file | Upstream repo | Commit | Upstream path | License | What we changed |
 |---|---|---|---|---|---|
-| (none yet) | | | | | |
+| contracts/src/interfaces/IEAS.sol | ethereum-attestation-service/eas-contracts | e6e970286ff18bbdfc5d8eff2742c5ece46040e4 | contracts/Common.sol, contracts/IEAS.sol | MIT | Kept only the `Attestation` struct (verbatim) and the `getAttestation` read function; dropped the rest of the interface, errors and constants. |

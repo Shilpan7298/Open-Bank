@@ -1,0 +1,954 @@
+{
+ "statuses": [
+  "not_started",
+  "passing",
+  "failing"
+ ],
+ "tests": [
+  {
+   "id": "IG-01",
+   "module": "IdentityGate",
+   "type": "unit",
+   "description": "registerIdentity accepts a valid attestation from a trusted attester and stores the country",
+   "status": "not_started"
+  },
+  {
+   "id": "IG-02",
+   "module": "IdentityGate",
+   "type": "unit",
+   "description": "registerIdentity rejects wrong schema, untrusted attester, recipient != caller, revoked, expired",
+   "status": "not_started"
+  },
+  {
+   "id": "IG-03",
+   "module": "IdentityGate",
+   "type": "unit",
+   "description": "borrowerProfile reverts once the attestation is revoked or its attester is untrusted",
+   "status": "not_started"
+  },
+  {
+   "id": "IG-04",
+   "module": "IdentityGate",
+   "type": "unit",
+   "description": "unmapped country is tier C, mapped countries return A/B, Blocked reverts",
+   "status": "not_started"
+  },
+  {
+   "id": "IG-05",
+   "module": "IdentityGate",
+   "type": "unit",
+   "description": "sanctioned account fails borrowerProfile and requireNotSanctioned",
+   "status": "not_started"
+  },
+  {
+   "id": "IG-06",
+   "module": "IdentityGate",
+   "type": "fuzz",
+   "description": "requireNotSanctioned reverts iff the oracle lists the account",
+   "status": "not_started"
+  },
+  {
+   "id": "IG-07",
+   "module": "IdentityGate",
+   "type": "unit",
+   "description": "a Blocked country reopens when governance remaps it (sanctions lifted)",
+   "status": "not_started"
+  },
+  {
+   "id": "CR-01",
+   "module": "CreditRegistry",
+   "type": "unit",
+   "description": "new borrower is stage New with the tier base limit",
+   "status": "not_started"
+  },
+  {
+   "id": "CR-02",
+   "module": "CreditRegistry",
+   "type": "unit",
+   "description": "each repaid loan steps the limit up to the tier max; stage thresholds apply",
+   "status": "not_started"
+  },
+  {
+   "id": "CR-03",
+   "module": "CreditRegistry",
+   "type": "unit",
+   "description": "a default drops the credit limit to zero",
+   "status": "not_started"
+  },
+  {
+   "id": "CR-04",
+   "module": "CreditRegistry",
+   "type": "unit",
+   "description": "onLoanFunded reverts beyond available credit; cancel and repay release outstanding",
+   "status": "not_started"
+  },
+  {
+   "id": "CR-05",
+   "module": "CreditRegistry",
+   "type": "unit",
+   "description": "requirementsFor returns the stage x tier table",
+   "status": "not_started"
+  },
+  {
+   "id": "CR-06",
+   "module": "CreditRegistry",
+   "type": "unit",
+   "description": "setRequirement rejects collateral below 20% and cover above 100%",
+   "status": "not_started"
+  },
+  {
+   "id": "CR-07",
+   "module": "CreditRegistry",
+   "type": "fuzz",
+   "description": "outstanding principal never exceeds the credit limit through onLoanFunded",
+   "status": "not_started"
+  },
+  {
+   "id": "CR-08",
+   "module": "CreditRegistry",
+   "type": "unit",
+   "description": "only the loan registry role can record loan events",
+   "status": "not_started"
+  },
+  {
+   "id": "CE-01",
+   "module": "CollateralEscrow",
+   "type": "unit",
+   "description": "deposit pulls collateral and tracks it per loan; registry only",
+   "status": "not_started"
+  },
+  {
+   "id": "CE-02",
+   "module": "CollateralEscrow",
+   "type": "unit",
+   "description": "release returns all collateral of a loan; registry only",
+   "status": "not_started"
+  },
+  {
+   "id": "CE-03",
+   "module": "CollateralEscrow",
+   "type": "fuzz",
+   "description": "seize sends min(loss, collateral) and leaves the remainder for the borrower",
+   "status": "not_started"
+  },
+  {
+   "id": "CE-04",
+   "module": "CollateralEscrow",
+   "type": "fuzz",
+   "description": "escrow token balance equals the sum of collateralOf across loans",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-01",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "stake creates or grows a slice and deposits into the stake vault",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-02",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "borrower, sanctioned and delinquent addresses cannot vouch",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-03",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "minimum slice and cover cap (loan principal) are enforced",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-04",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "unstake works while Open or Cancelled and reverts once Locked",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-05",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "lockCover returns total cover principal; stake after lock or after deadline reverts",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-06",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "after release vouchers claim stake + vault yield + premium pro rata",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-07",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "after a partial loss vouchers claim the remainder pro rata",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-08",
+   "module": "VouchingModule",
+   "type": "fuzz",
+   "description": "absorbLoss takes min(loss, stake value); claims never exceed what is left (rounding favours protocol)",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-09",
+   "module": "VouchingModule",
+   "type": "invariant",
+   "description": "stakes backing a Locked loan can never be withdrawn or claimed",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-10",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "voucher stats count backed, repaid, defaulted and value lost",
+   "status": "not_started"
+  },
+  {
+   "id": "VM-11",
+   "module": "VouchingModule",
+   "type": "unit",
+   "description": "a sanctioned voucher cannot claim",
+   "status": "not_started"
+  },
+  {
+   "id": "SV-01",
+   "module": "StakeVault",
+   "type": "unit",
+   "description": "only authorised depositors can deposit; donated yield accrues to share price",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-01",
+   "module": "RateAuction",
+   "type": "unit",
+   "description": "placeBid escrows funds; rate on tick and <= max; minimum bid; borrower and sanctioned cannot bid",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-02",
+   "module": "RateAuction",
+   "type": "unit",
+   "description": "clears at the lowest tick where cumulative bids reach principal; lower ticks fill fully, higher refund",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-03",
+   "module": "RateAuction",
+   "type": "unit",
+   "description": "marginal tick fills pro rata, rounded up",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-04",
+   "module": "RateAuction",
+   "type": "unit",
+   "description": "an under-subscribed auction fails and refunds every bid",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-05",
+   "module": "RateAuction",
+   "type": "unit",
+   "description": "cancel after clearing makes every bid fully refundable",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-06",
+   "module": "RateAuction",
+   "type": "unit",
+   "description": "disburse sends exactly the principal; unfilled parts stay refundable",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-07",
+   "module": "RateAuction",
+   "type": "fuzz",
+   "description": "clearing properties: filled rates <= clearing rate, no bid below it unfilled, P <= totalFilled <= P + marginal bids",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-08",
+   "module": "RateAuction",
+   "type": "fuzz",
+   "description": "solvency: balance covers every refundable amount after settle and disburse",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-09",
+   "module": "RateAuction",
+   "type": "unit",
+   "description": "MAX_BIDS limit and minBid = ceil(P / MAX_BIDS)",
+   "status": "not_started"
+  },
+  {
+   "id": "RA-10",
+   "module": "RateAuction",
+   "type": "unit",
+   "description": "a bid cannot be refunded twice; bids after end revert",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-01",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "propose requires IdentityGate, credit room and valid terms",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-02",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "open requires score consensus; score sets band and can only raise voucher cover",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-03",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "postCollateral is borrower-only and only during the auction window",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-04",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "settle funds the loan when every condition holds",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-05",
+   "module": "LoanRegistry",
+   "type": "fuzz",
+   "description": "settle cancels when collateral is below the tier/stage minimum",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-06",
+   "module": "LoanRegistry",
+   "type": "fuzz",
+   "description": "settle cancels when voucher cover is below the requirement",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-07",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "settle cancels when the borrower is sanctioned or its identity is revoked",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-08",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "settle cancels when the loan no longer fits the credit limit",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-09",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "settle cancels when the score expired or its scorer was deregistered",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-10",
+   "module": "LoanRegistry",
+   "type": "fuzz",
+   "description": "a valid score is never sufficient: with any other condition missing the loan is not funded",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-11",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "settle cancels when the insurance basket lacks capacity",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-12",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "tier C needs collateral + voucher cover >= principal",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-13",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "drawdown stores agreement hash, takes reserve fee, disburses the rest",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-14",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "cancelExpired refunds lenders, frees cover and credit; collateral withdrawable",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-15",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "repay splits cumulatively; full repayment releases collateral/stakes and raises the credit limit",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-16",
+   "module": "LoanRegistry",
+   "type": "fuzz",
+   "description": "repayment split is exact at full repayment for lenders, vouchers and insurers",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-17",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "amountDueBy follows installments; default only after the grace period",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-18",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "markDefault runs the waterfall once and credits recovered cash to lenders",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-19",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "lenders claim pro rata by fill; sanctioned lender cannot claim",
+   "status": "not_started"
+  },
+  {
+   "id": "LR-20",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "repay and markDefault work while paused; new risk entry points do not",
+   "status": "not_started"
+  },
+  {
+   "id": "LV-01",
+   "module": "LenderVault",
+   "type": "unit",
+   "description": "ERC-4626 deposit/withdraw with sanctions checks",
+   "status": "not_started"
+  },
+  {
+   "id": "LV-02",
+   "module": "LenderVault",
+   "type": "unit",
+   "description": "only the allocator bids; loan must be Open and in the vault band",
+   "status": "not_started"
+  },
+  {
+   "id": "LV-03",
+   "module": "LenderVault",
+   "type": "unit",
+   "description": "per-borrower and total deployment caps",
+   "status": "not_started"
+  },
+  {
+   "id": "LV-04",
+   "module": "LenderVault",
+   "type": "unit",
+   "description": "harvest after repayment recognises interest and closes the position",
+   "status": "not_started"
+  },
+  {
+   "id": "LV-05",
+   "module": "LenderVault",
+   "type": "unit",
+   "description": "a default is reflected in totalAssets immediately and realised on harvest",
+   "status": "not_started"
+  },
+  {
+   "id": "LV-06",
+   "module": "LenderVault",
+   "type": "unit",
+   "description": "withdrawals are limited to idle cash",
+   "status": "not_started"
+  },
+  {
+   "id": "LV-07",
+   "module": "LenderVault",
+   "type": "unit",
+   "description": "first-depositor inflation attack is unprofitable",
+   "status": "not_started"
+  },
+  {
+   "id": "LV-08",
+   "module": "LenderVault",
+   "type": "fuzz",
+   "description": "totalAssets equals idle plus the sum of position values",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-01",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "deposit into junior/senior mints shares; sanctioned cannot insure",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-02",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "assignCover keeps exposure <= 3x capital",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-03",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "country, sector and origination-month exposure <= 25% of capacity",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-04",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "absorbLoss takes junior before senior, capped at the loan's exposure",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-05",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "premium split between tranches with the senior haircut",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-06",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "a withdrawal cannot settle before its notice period (epoch rounded)",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-07",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "queued withdrawal shares absorb losses until they settle",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-08",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "withdrawals pay only capital not needed for leverage and concentration limits",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-09",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "claimWithdrawals pays settled amounts; sanctioned cannot claim",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-10",
+   "module": "InsuranceBasket",
+   "type": "invariant",
+   "description": "outside loss absorption, exposure <= leverage x capital and every concentration <= cap",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-11",
+   "module": "InsuranceBasket",
+   "type": "invariant",
+   "description": "token balance == sum of tranche assets + unclaimed withdrawals",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-12",
+   "module": "InsuranceBasket",
+   "type": "fuzz",
+   "description": "queued shares' value moves one-for-one with tranche NAV",
+   "status": "not_started"
+  },
+  {
+   "id": "IB-13",
+   "module": "InsuranceBasket",
+   "type": "unit",
+   "description": "basket capital sits in the stake vault and earns base yield",
+   "status": "not_started"
+  },
+  {
+   "id": "RV-01",
+   "module": "ReserveVault",
+   "type": "unit",
+   "description": "collectFee takes feeBps of principal below the cap",
+   "status": "not_started"
+  },
+  {
+   "id": "RV-02",
+   "module": "ReserveVault",
+   "type": "unit",
+   "description": "fee is reduced to the room under the cap",
+   "status": "not_started"
+  },
+  {
+   "id": "RV-03",
+   "module": "ReserveVault",
+   "type": "unit",
+   "description": "sync rebates the excess when outstanding principal falls",
+   "status": "not_started"
+  },
+  {
+   "id": "RV-04",
+   "module": "ReserveVault",
+   "type": "unit",
+   "description": "coverLoss pays min(amount, reserve assets)",
+   "status": "not_started"
+  },
+  {
+   "id": "RV-05",
+   "module": "ReserveVault",
+   "type": "fuzz",
+   "description": "reserve assets never exceed the cap after fee intake or sync",
+   "status": "not_started"
+  },
+  {
+   "id": "RV-06",
+   "module": "ReserveVault",
+   "type": "unit",
+   "description": "parameter bounds: fee 1-2%, cap <= 5%",
+   "status": "not_started"
+  },
+  {
+   "id": "LW-01",
+   "module": "LossWaterfall",
+   "type": "unit",
+   "description": "collateral alone covers the loss; no other layer touched",
+   "status": "not_started"
+  },
+  {
+   "id": "LW-02",
+   "module": "LossWaterfall",
+   "type": "unit",
+   "description": "collateral then voucher stakes",
+   "status": "not_started"
+  },
+  {
+   "id": "LW-03",
+   "module": "LossWaterfall",
+   "type": "unit",
+   "description": "insurance basket junior then senior",
+   "status": "not_started"
+  },
+  {
+   "id": "LW-04",
+   "module": "LossWaterfall",
+   "type": "unit",
+   "description": "reserve pays after the basket is exhausted for the loan",
+   "status": "not_started"
+  },
+  {
+   "id": "LW-05",
+   "module": "LossWaterfall",
+   "type": "unit",
+   "description": "senior lenders lose only after every layer is exhausted",
+   "status": "not_started"
+  },
+  {
+   "id": "LW-06",
+   "module": "LossWaterfall",
+   "type": "fuzz",
+   "description": "strict order for random layer sizes and losses",
+   "status": "not_started"
+  },
+  {
+   "id": "LW-07",
+   "module": "LossWaterfall",
+   "type": "unit",
+   "description": "executeDefault runs once per loan, registry only",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-01",
+   "module": "ScoreOracle",
+   "type": "unit",
+   "description": "accepts an attestation + EIP-712 signature from a registered scorer",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-02",
+   "module": "ScoreOracle",
+   "type": "unit",
+   "description": "rejects unregistered signers",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-03",
+   "module": "ScoreOracle",
+   "type": "unit",
+   "description": "rejects wrong schema, revoked attestation, recipient != borrower",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-04",
+   "module": "ScoreOracle",
+   "type": "unit",
+   "description": "expired scores are rejected and stop counting",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-05",
+   "module": "ScoreOracle",
+   "type": "unit",
+   "description": "quorum counts each scorer once",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-06",
+   "module": "ScoreOracle",
+   "type": "unit",
+   "description": "consensus takes the most conservative band, PD and cover",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-07",
+   "module": "ScoreOracle",
+   "type": "unit",
+   "description": "signatures for another chain or verifying contract are rejected",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-08",
+   "module": "ScoreOracle",
+   "type": "unit",
+   "description": "a deregistered scorer's scores stop counting",
+   "status": "not_started"
+  },
+  {
+   "id": "SO-09",
+   "module": "ScoreOracle",
+   "type": "fuzz",
+   "description": "bands outside 1-5 are rejected",
+   "status": "not_started"
+  },
+  {
+   "id": "GOV-01",
+   "module": "Governance",
+   "type": "fuzz",
+   "description": "every parameter setter reverts for any caller except the timelock",
+   "status": "not_started"
+  },
+  {
+   "id": "GOV-02",
+   "module": "Governance",
+   "type": "unit",
+   "description": "guardian can pause but cannot unpause, set parameters or grant roles",
+   "status": "not_started"
+  },
+  {
+   "id": "GOV-03",
+   "module": "Governance",
+   "type": "unit",
+   "description": "after deployment the timelock is the only admin; deployer renounced",
+   "status": "not_started"
+  },
+  {
+   "id": "GOV-04",
+   "module": "Governance",
+   "type": "unit",
+   "description": "a parameter change goes through TimelockController schedule/execute after the delay",
+   "status": "not_started"
+  },
+  {
+   "id": "GOV-05",
+   "module": "Governance",
+   "type": "unit",
+   "description": "pause blocks propose, bid, stake and deposits but not repay, default or exits",
+   "status": "not_started"
+  },
+  {
+   "id": "SAN-01",
+   "module": "Sanctions",
+   "type": "fuzz",
+   "description": "a sanctioned address cannot propose, bid, vouch, insure, deposit or receive any payout",
+   "status": "not_started"
+  },
+  {
+   "id": "INV-01",
+   "module": "System",
+   "type": "invariant",
+   "description": "waterfall order holds for every default in random system runs",
+   "status": "not_started"
+  },
+  {
+   "id": "INV-02",
+   "module": "System",
+   "type": "invariant",
+   "description": "conservation: assets across modules == deposits + interest/fees - withdrawals - realised losses, to the wei",
+   "status": "not_started"
+  },
+  {
+   "id": "INV-03",
+   "module": "System",
+   "type": "invariant",
+   "description": "voucher stakes backing an Active loan are never withdrawn",
+   "status": "not_started"
+  },
+  {
+   "id": "INV-04",
+   "module": "System",
+   "type": "invariant",
+   "description": "every funded loan met collateral, cover, identity and credit-limit conditions when funded",
+   "status": "not_started"
+  },
+  {
+   "id": "INV-05",
+   "module": "System",
+   "type": "invariant",
+   "description": "no loan is funded without a score consensus, and none on the score alone",
+   "status": "not_started"
+  },
+  {
+   "id": "INV-06",
+   "module": "System",
+   "type": "invariant",
+   "description": "reserve assets <= cap of outstanding principal",
+   "status": "not_started"
+  },
+  {
+   "id": "INV-07",
+   "module": "System",
+   "type": "invariant",
+   "description": "basket leverage and concentration limits hold outside loss absorption",
+   "status": "not_started"
+  },
+  {
+   "id": "INV-08",
+   "module": "System",
+   "type": "invariant",
+   "description": "sanctioned actors never receive payouts",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-01",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "happy path: onboard, score, back, auction, drawdown, repay, claims; credit limit rises",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-02",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "default fully covered by collateral and vouchers",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-03",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "default reaching basket junior and senior",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-04",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "default exhausting the basket; reserve pays",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-05",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "default where senior lenders take a loss",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-06",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "lender vault funds a loan and realises returns",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-07",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "failed auction refunds lenders, vouchers and collateral",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-08",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "borrower misses drawdown; loan cancelled and everyone refunded",
+   "status": "not_started"
+  },
+  {
+   "id": "E2E-09",
+   "module": "E2E",
+   "type": "e2e",
+   "description": "Deploy script wires the system on Anvil and hands admin to the timelock",
+   "status": "not_started"
+  },
+  {
+   "id": "UW-01",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "score schema validation rejects out-of-range and extra fields",
+   "status": "passing"
+  },
+  {
+   "id": "UW-02",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "prompt puts verified data first and wraps the proposal in delimited tags with an injection warning",
+   "status": "not_started"
+  },
+  {
+   "id": "UW-03",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "mock mode is deterministic and needs no API key",
+   "status": "not_started"
+  },
+  {
+   "id": "UW-04",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "EIP-712 signature matches ScoreOracle's digest (shared test vector)",
+   "status": "not_started"
+  },
+  {
+   "id": "UW-05",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "attestation data encodes the Score struct exactly as ScoreOracle decodes it",
+   "status": "not_started"
+  },
+  {
+   "id": "UW-06",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "invalid model output is rejected and never signed",
+   "status": "not_started"
+  },
+  {
+   "id": "UW-07",
+   "module": "Underwriter",
+   "type": "e2e",
+   "description": "service scores, signs and attests on Anvil; ScoreOracle accepts it",
+   "status": "not_started"
+  },
+  {
+   "id": "SIM-01",
+   "module": "Simulation",
+   "type": "unit",
+   "description": "launch parameters match CLAUDE.md bounds",
+   "status": "passing"
+  }
+ ]
+}
