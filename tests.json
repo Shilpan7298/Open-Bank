@@ -738,42 +738,42 @@
    "module": "Governance",
    "type": "fuzz",
    "description": "every parameter setter reverts for any caller except the timelock",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "GOV-02",
    "module": "Governance",
    "type": "unit",
    "description": "guardian can pause but cannot unpause, set parameters or grant roles",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "GOV-03",
    "module": "Governance",
    "type": "unit",
    "description": "after deployment the timelock is the only admin; deployer renounced",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "GOV-04",
    "module": "Governance",
    "type": "unit",
    "description": "a parameter change goes through TimelockController schedule/execute after the delay",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "GOV-05",
    "module": "Governance",
    "type": "unit",
    "description": "pause blocks propose, bid, stake and deposits but not repay, default or exits",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "SAN-01",
    "module": "Sanctions",
    "type": "fuzz",
    "description": "a sanctioned address cannot propose, bid, vouch, insure, deposit or receive any payout",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "INV-01",
