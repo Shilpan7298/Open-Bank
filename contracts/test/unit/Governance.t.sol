@@ -47,7 +47,7 @@ contract GovernanceTest is SystemFixture {
         c[14] = Call(
             address(s.registry),
             abi.encodeCall(
-                s.registry.setParams, (ILoanRegistry.Params(3 days, 7 days, 30 days, 30 days, 730 days, 24, 400))
+                s.registry.setParams, (ILoanRegistry.Params(3 days, 7 days, 30 days, 30 days, 730 days, 24, 400, 10, 10e6))
             )
         );
         c[15] = Call(address(s.lenderVault), abi.encodeCall(s.lenderVault.setCaps, (1_000, 9_000)));

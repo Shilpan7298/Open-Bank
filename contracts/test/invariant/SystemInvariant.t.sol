@@ -97,7 +97,7 @@ contract SystemHandler is ScoreSigner {
         principal = bound(principal, 100e6, 1_000e6);
         if (s.credit.availableCredit(b, tier) < principal || !s.gate.isEligibleBorrower(b)) return;
         vm.prank(b);
-        uint256 id = s.registry.propose(principal, 90 days, 3, 1_500, uint16(who % 5), 0);
+        uint256 id = s.registry.propose(principal, 90 days, 3, 1_500, uint16(1 + who % 5), 0);
         if (scored) {
             IScoreOracle.Score memory sc = _score(id, b, 2);
             vm.prank(vm.addr(scorerPk));

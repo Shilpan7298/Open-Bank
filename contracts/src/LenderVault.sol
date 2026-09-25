@@ -34,6 +34,7 @@ contract LenderVault is ILenderVault, ERC4626, ProtocolAccess, ReentrancyGuard {
 
     uint16 public maxPerBorrowerBps;
     uint16 public maxDeployedBps;
+    uint16 public minRateBps = 500;
 
     uint256 private _idle;
     uint256[] private _open;
@@ -73,6 +74,8 @@ contract LenderVault is ILenderVault, ERC4626, ProtocolAccess, ReentrancyGuard {
         ILoanRegistry.Loan memory l = registry.loanOf(loanId);
         if (l.state != LoanState.Open) revert LoanNotOpen(loanId);
         if (l.riskBand != riskBand) revert WrongBand(l.riskBand, riskBand);
+        // Security M-4: an allocator cannot lend depositors' money below the governed floor rate.
+        if (rateBps < minRateBps) revert RateBelowFloor(rateBps, minRateBps);
         if (amount > _idle) revert InsufficientIdle(amount, _idle);
         uint256 total = totalAssets();
         if (borrowerExposure[l.borrower] + amount > Math.mulDiv(total, maxPerBorrowerBps, BPS)) {
@@ -202,6 +205,13 @@ contract LenderVault is ILenderVault, ERC4626, ProtocolAccess, ReentrancyGuard {
     /// @inheritdoc ILenderVault
     function setCaps(uint16 maxPerBorrowerBps_, uint16 maxDeployedBps_) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _setCaps(maxPerBorrowerBps_, maxDeployedBps_);
+    }
+
+    /// @inheritdoc ILenderVault
+    function setMinRate(uint16 minRateBps_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _checkBounds(minRateBps_, 0, 5_000);
+        minRateBps = minRateBps_;
+        emit MinRateSet(minRateBps_);
     }
 
     function _setCaps(uint16 perBorrower, uint16 deployed) internal {

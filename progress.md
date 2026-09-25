@@ -35,6 +35,33 @@ The founder set the direction: OBP is mainly for people in poor or broken econom
   - Merging this branch to `main`.
 - **Open question:** the stablecoin legal position differs sharply by country. Bangladesh's central bank has warned against crypto, Egypt restricts it, and Argentina uses stablecoins widely. This needs country legal review before any real funds (Phase 3).
 
+## Session 1c: real-economy use and security review
+
+- **Real economy.** `drawdownTo` pays a sanctions-screened off-ramp partner or supplier. Tests show anyone can repay on the borrower's behalf. Loan purposes have plain-language names in all four languages. See `docs/REAL_WORLD_USE.md`.
+- **Security review.** Full report in `docs/SECURITY_REVIEW.md`. Two High, four Medium and one Low finding, all fixed, each with a proof test in `contracts/test/security/`. Eight residual risks are documented.
+  - **H-1, wash lending:**
+    - one wallet per person (identity attestations carry a person id);
+    - direct lenders must be verified people other than the borrower (vaults exempt);
+    - insurance and the reserve cover unpaid principal only.
+  - **H-2:** insurer and vault exits pause while a covered loan is late.
+  - **M-1:** voucher stakes are binding.
+  - **M-2:** a better-rate bid evicts the worst when the book is full.
+  - **M-3:** purpose codes are bounded to 1..10.
+  - **M-4:** vault floor rate of 5%.
+  - **L-1:** minimum principal of 10 USDC.
+- **Tests changed because the specification changed** (none were weakened):
+  - The LR-04, LR-12 and LR-18 and E2E-03/04/05 expectations encoded the old loss definition, where insurance covered lender interest. They now assert principal-only cover, and that lenders lose at most interest while insurers have capacity.
+  - VM-04 encoded withdrawable stakes; it now asserts binding stakes.
+  - RA-09 encoded "full book rejects all new bids"; it now asserts eviction by a better rate.
+  - The system-invariant waterfall check now applies the insurable cap.
+  - Fixtures onboard lenders (now required) and use purpose codes 1..10.
+- **CI miss.** After H-1, CI failed because the underwriter's Anvil test still used the old identity encoding. I had run only `forge test` before pushing. It is fixed, and the full `./init.sh` now runs before every push.
+- **Founder decisions:**
+  - confirm principal-only insurance (it reverses the earlier interest-covered choice);
+  - requiring KYC for direct lenders;
+  - credit-farming mitigation (R-1);
+  - repayment schedules and early-payoff refunds (`docs/REAL_WORLD_USE.md`).
+
 ## How to resume
 
 1. `./init.sh`. It installs Foundry if needed, picks native solc or the solc-js fallback, builds, and runs all three suites.

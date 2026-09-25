@@ -8,7 +8,7 @@ pragma solidity 0.8.35;
 interface IVouchingModule {
     enum CoverState {
         None,
-        Open, // collecting slices, slices withdrawable
+        Open, // collecting slices (binding)
         Locked, // loan funded, slices irrevocable
         Released, // loan repaid, vouchers claim stake + premium
         Defaulted, // loss absorbed, vouchers claim what is left + premium received before default
@@ -68,7 +68,8 @@ interface IVouchingModule {
     /// Adds to the caller's existing slice for this loan.
     function stake(uint256 loanId, uint256 assets) external;
 
-    /// @notice Withdraw the caller's slice while cover is Open (before the deadline) or Cancelled.
+    /// @notice Withdraw the caller's slice once the loan is Cancelled. Stakes are binding while the loan is being
+    /// backed, so cover cannot be pulled at the last moment.
     function unstake(uint256 loanId) external;
 
     /// @notice Make all slices irrevocable at loan funding. Loan registry only.

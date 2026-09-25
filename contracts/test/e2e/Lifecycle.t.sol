@@ -122,7 +122,7 @@ contract LifecycleTest is SystemFixture {
             s.usdc.mint(b, 1_000e6);
             vm.startPrank(b);
             s.usdc.approve(address(s.escrow), type(uint256).max);
-            uint256 id = s.registry.propose(P, TERM, 6, 1_500, uint16(10 + i), 0);
+            uint256 id = s.registry.propose(P, TERM, 6, 1_500, uint16(1 + i), 0);
             vm.stopPrank();
             _scoreLoan(id, b, 3, 0);
             _open(id);

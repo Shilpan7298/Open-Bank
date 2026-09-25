@@ -17,6 +17,7 @@ interface ILenderVault is IERC4626 {
     event BidPlaced(uint256 indexed loanId, uint256 amount, uint16 rateBps, uint256 bidId);
     event Harvested(uint256 indexed loanId, uint256 amount, bool closed);
     event CapsSet(uint16 maxPerBorrowerBps, uint16 maxDeployedBps);
+    event MinRateSet(uint16 minRateBps);
 
     error WrongBand(uint8 loanBand, uint8 vaultBand);
     error LoanNotOpen(uint256 loanId);
@@ -24,6 +25,7 @@ interface ILenderVault is IERC4626 {
     error BorrowerCapExceeded(address borrower);
     error DeployedCapExceeded();
     error TooManyPositions();
+    error RateBelowFloor(uint16 rateBps, uint16 floorBps);
 
     /// @notice Risk band this vault lends into.
     function riskBand() external view returns (uint8);
@@ -44,6 +46,9 @@ interface ILenderVault is IERC4626 {
 
     /// @notice Open position loan ids.
     function openPositions() external view returns (uint256[] memory);
+
+    /// @notice Lowest rate the allocator may bid, protecting depositors from below-market lending. Timelock only.
+    function setMinRate(uint16 minRateBps) external;
 
     /// @notice Set exposure caps in bps of total assets. Timelock only.
     function setCaps(uint16 maxPerBorrowerBps, uint16 maxDeployedBps) external;

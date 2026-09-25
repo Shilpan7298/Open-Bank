@@ -85,7 +85,9 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
                 minTerm: 30 days,
                 maxTerm: 730 days,
                 maxInstallments: 24,
-                voucherPremiumBps: 400
+                voucherPremiumBps: 400,
+                maxPurpose: 10,
+                minPrincipal: 10e6
             })
         );
         m.asset.forceApprove(address(m.vouching), type(uint256).max);
@@ -107,10 +109,13 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         (Tier tier, uint16 country) = gate.borrowerProfile(msg.sender);
         Params memory p = params;
         if (
-            principal == 0 || term < p.minTerm || term > p.maxTerm || numInstallments == 0
+            principal < p.minPrincipal || term < p.minTerm || term > p.maxTerm || numInstallments == 0
                 || numInstallments > p.maxInstallments || maxRateBps == 0 || maxRateBps > auction.MAX_RATE_BPS()
                 || maxRateBps % auction.TICK_BPS() != 0
         ) revert InvalidTerms();
+        // Security M-3: purposes are a fixed, governed list. Free-form codes let a borrower dodge the basket's
+        // sector concentration cap and bloat the per-key sets insurers' exits iterate over.
+        if (sector == 0 || sector > p.maxPurpose) revert InvalidPurpose(sector);
         uint256 available = credit.availableCredit(msg.sender, tier);
         if (principal > available) revert ExceedsCreditLimit(principal, available);
 
@@ -445,6 +450,8 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         _checkBounds(p.maxTerm, p.minTerm, 1_825 days);
         _checkBounds(p.maxInstallments, 1, 120);
         _checkBounds(p.voucherPremiumBps, 0, 2_000);
+        _checkBounds(p.maxPurpose, 1, 1_000);
+        _checkBounds(p.minPrincipal, 1, 1_000_000e6);
         params = p;
         emit ParamsSet(p);
     }

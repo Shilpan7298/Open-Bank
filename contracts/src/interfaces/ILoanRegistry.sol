@@ -55,6 +55,8 @@ interface ILoanRegistry {
         uint64 maxTerm;
         uint16 maxInstallments;
         uint16 voucherPremiumBps; // APR paid on staked voucher principal
+        uint16 maxPurpose; // loan purpose (sector) codes are 1..maxPurpose, see i18n loan.purpose.*
+        uint64 minPrincipal; // smallest loan, so rounding and minimum slices behave
     }
 
     event LoanProposed(uint256 indexed loanId, address indexed borrower, uint256 principal, uint64 term);
@@ -84,6 +86,7 @@ interface ILoanRegistry {
     error NothingToClaim();
     error NothingToRepay();
     error ExceedsCreditLimit(uint256 principal, uint256 available);
+    error InvalidPurpose(uint16 purpose);
 
     /// @notice Propose a loan. The caller must pass IdentityGate and the principal must fit its credit limit.
     /// @param principal Amount to borrow (asset units).
