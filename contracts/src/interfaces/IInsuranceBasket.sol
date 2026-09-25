@@ -118,6 +118,21 @@ interface IInsuranceBasket {
     /// @notice Cover record for a loan.
     function coverOf(uint256 loanId) external view returns (CoverRecord memory);
 
+    /// @notice Withdrawal request by queue position.
+    function requestOf(uint256 basketId, Tranche tranche, uint256 requestId)
+        external
+        view
+        returns (WithdrawalRequest memory);
+
+    /// @notice Queue head (next request to process) and length.
+    function queueOf(uint256 basketId, Tranche tranche) external view returns (uint256 head, uint256 length);
+
+    /// @notice Settled withdrawals `owner` can claim.
+    function claimableOf(address owner) external view returns (uint256);
+
+    /// @notice Capital that could leave the basket now without breaking leverage or concentration limits.
+    function freeCapital(uint256 basketId) external view returns (uint256);
+
     /// @notice Set a basket's premium rate. Timelock only.
     function setPremiumRate(uint256 basketId, uint16 rateBps) external;
 

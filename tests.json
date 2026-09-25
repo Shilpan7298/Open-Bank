@@ -493,84 +493,84 @@
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "deposit into junior/senior mints shares; sanctioned cannot insure",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-02",
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "assignCover keeps exposure <= 3x capital",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-03",
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "country, sector and origination-month exposure <= 25% of capacity",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-04",
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "absorbLoss takes junior before senior, capped at the loan's exposure",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-05",
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "premium split between tranches with the senior haircut",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-06",
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "a withdrawal cannot settle before its notice period (epoch rounded)",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-07",
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "queued withdrawal shares absorb losses until they settle",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-08",
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "withdrawals pay only capital not needed for leverage and concentration limits",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-09",
    "module": "InsuranceBasket",
    "type": "unit",
    "description": "claimWithdrawals pays settled amounts; sanctioned cannot claim",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-10",
    "module": "InsuranceBasket",
    "type": "invariant",
    "description": "outside loss absorption, exposure <= leverage x capital and every concentration <= cap",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-11",
    "module": "InsuranceBasket",
    "type": "invariant",
    "description": "token balance == sum of tranche assets + unclaimed withdrawals",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-12",
    "module": "InsuranceBasket",
    "type": "fuzz",
    "description": "queued shares' value moves one-for-one with tranche NAV",
-   "status": "not_started"
+   "status": "passing"
   },
   {
    "id": "IB-13",
