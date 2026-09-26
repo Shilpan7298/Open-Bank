@@ -61,6 +61,10 @@ abstract contract SystemFixture is ScoreSigner {
             }
         }
         _onboard(borrower, COUNTRY_A);
+        // Direct lenders must be verified people (see RateAuction._checkIndependentLender).
+        _onboard(l1, COUNTRY_B);
+        _onboard(l2, COUNTRY_B);
+        _onboard(l3, COUNTRY_B);
         _seedBasket(2, Tier.A, 2_000e6, 6_000e6);
     }
 
@@ -68,7 +72,7 @@ abstract contract SystemFixture is ScoreSigner {
 
     function _onboard(address who, uint16 country) internal returns (bytes32 uid) {
         vm.prank(attester);
-        uid = s.eas.attest(DeployLib.IDENTITY_SCHEMA, who, 0, abi.encode(uint256(country)));
+        uid = s.eas.attest(DeployLib.IDENTITY_SCHEMA, who, 0, abi.encode(uint256(country), keccak256(abi.encode("person", who))));
         vm.prank(who);
         s.gate.registerIdentity(uid);
     }

@@ -61,7 +61,8 @@ export const abis = {
 export async function readVerifiedData(client: PublicClient, d: Deployment, borrower: Address): Promise<VerifiedData> {
   const uid = await client.readContract({ address: d.identityGate, abi: abis.gate, functionName: "identityOf", args: [borrower] });
   const att = await client.readContract({ address: d.eas, abi: abis.eas, functionName: "getAttestation", args: [uid] });
-  const [countryRaw] = decodeAbiParameters([{ type: "uint256" }], att.data);
+  // Identity attestation data: (uint256 country, bytes32 person). The person id is not needed for scoring.
+  const [countryRaw] = decodeAbiParameters([{ type: "uint256" }, { type: "bytes32" }], att.data);
   const country = Number(countryRaw);
   const tierIdx = await client.readContract({ address: d.identityGate, abi: abis.gate, functionName: "tierOf", args: [country] });
   const tier = TIERS[tierIdx];

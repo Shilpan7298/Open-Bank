@@ -29,7 +29,7 @@ contract IdentityGateTest is Test {
 
     function _attest(address from, bytes32 schema, address to, uint64 expiry, uint16 country) internal returns (bytes32) {
         vm.prank(from);
-        return eas.attest(schema, to, expiry, abi.encode(uint256(country)));
+        return eas.attest(schema, to, expiry, abi.encode(uint256(country), keccak256(abi.encode("person", to))));
     }
 
     function _register(address who, uint16 country) internal returns (bytes32 uid) {

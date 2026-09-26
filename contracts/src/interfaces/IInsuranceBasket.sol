@@ -47,6 +47,7 @@ interface IInsuranceBasket {
     event LossAbsorbed(uint256 indexed loanId, uint256 junior, uint256 senior);
     event PremiumRateSet(uint256 indexed basketId, uint16 rateBps);
     event ParamsSet(Params params);
+    event LateFlagged(uint256 indexed loanId, bool late);
 
     error InvalidBasket(uint256 basketId);
     error ZeroShares();
@@ -55,6 +56,9 @@ interface IInsuranceBasket {
     error ConcentrationExceeded(uint256 basketId, uint8 dimension);
     error AlreadyCovered(uint256 loanId);
     error NothingToClaim();
+    error NotLate(uint256 loanId);
+    error LateLoansOutstanding(uint256 basketId, uint256 lateLoans);
+    error RegistryAlreadySet();
 
     /// @notice Basket id for a risk band (1-5) and tier (A, B or C).
     function basketIdOf(uint8 riskBand, Tier tier) external pure returns (uint256);
@@ -68,11 +72,23 @@ interface IInsuranceBasket {
     /// @return requestId Queue position.
     function requestWithdrawal(uint256 basketId, Tranche tranche, uint256 shares) external returns (uint256 requestId);
 
-    /// @notice Process up to `maxRequests` eligible requests from the head of the queue, pricing shares at the
+    /// @notice Reverts while any covered loan in the basket is flagged late (security H-2).
+    /// Process up to `maxRequests` eligible requests from the head of the queue, pricing shares at the
     /// current NAV and paying out only capital not needed to keep leverage and concentration within limits.
     /// Callable by anyone.
     /// @return processed Number of requests fully settled.
     function processWithdrawals(uint256 basketId, Tranche tranche, uint256 maxRequests) external returns (uint256 processed);
+
+    /// @notice Flag a covered loan that has missed an installment. While any loan in a basket is flagged, its
+    /// withdrawals are paused. Callable by anyone (remaining insurers are the natural keepers).
+    function flagLate(uint256 loanId) external;
+
+    /// @notice Clear the flag once the loan has caught up. Callable by anyone. Flags also clear automatically when
+    /// the loan is repaid, cancelled or its default is settled.
+    function clearLate(uint256 loanId) external;
+
+    /// @notice Set the loan registry used for lateness checks. Timelock only, once.
+    function setLoanRegistry(address registry) external;
 
     /// @notice Pay the caller's settled withdrawals. Caller must not be sanctioned.
     function claimWithdrawals() external returns (uint256 assets);

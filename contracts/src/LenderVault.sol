@@ -34,6 +34,7 @@ contract LenderVault is ILenderVault, ERC4626, ProtocolAccess, ReentrancyGuard {
 
     uint16 public maxPerBorrowerBps;
     uint16 public maxDeployedBps;
+    uint16 public minRateBps = 500;
 
     uint256 private _idle;
     uint256[] private _open;
@@ -73,6 +74,8 @@ contract LenderVault is ILenderVault, ERC4626, ProtocolAccess, ReentrancyGuard {
         ILoanRegistry.Loan memory l = registry.loanOf(loanId);
         if (l.state != LoanState.Open) revert LoanNotOpen(loanId);
         if (l.riskBand != riskBand) revert WrongBand(l.riskBand, riskBand);
+        // Security M-4: an allocator cannot lend depositors' money below the governed floor rate.
+        if (rateBps < minRateBps) revert RateBelowFloor(rateBps, minRateBps);
         if (amount > _idle) revert InsufficientIdle(amount, _idle);
         uint256 total = totalAssets();
         if (borrowerExposure[l.borrower] + amount > Math.mulDiv(total, maxPerBorrowerBps, BPS)) {
@@ -131,14 +134,25 @@ contract LenderVault is ILenderVault, ERC4626, ProtocolAccess, ReentrancyGuard {
         }
     }
 
-    /// @notice Loans are illiquid: exits are limited to idle cash.
+    /// @notice Loans are illiquid: exits are limited to idle cash, and paused while any position is late.
     function maxWithdraw(address owner) public view override(ERC4626, IERC4626) returns (uint256) {
+        if (hasLatePosition()) return 0;
         return Math.min(super.maxWithdraw(owner), _idle);
     }
 
-    /// @notice Loans are illiquid: exits are limited to idle cash.
+    /// @notice Loans are illiquid: exits are limited to idle cash, and paused while any position is late.
     function maxRedeem(address owner) public view override(ERC4626, IERC4626) returns (uint256) {
+        if (hasLatePosition()) return 0;
         return Math.min(super.maxRedeem(owner), _convertToShares(_idle, Math.Rounding.Floor));
+    }
+
+    /// @notice True while any open position's loan has missed an installment. Exits are paused so depositors
+    /// cannot leave at a stale price ahead of a likely default (security H-2).
+    function hasLatePosition() public view returns (bool) {
+        for (uint256 i; i < _open.length; i++) {
+            if (registry.isLate(_open[i])) return true;
+        }
+        return false;
     }
 
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares)
@@ -191,6 +205,13 @@ contract LenderVault is ILenderVault, ERC4626, ProtocolAccess, ReentrancyGuard {
     /// @inheritdoc ILenderVault
     function setCaps(uint16 maxPerBorrowerBps_, uint16 maxDeployedBps_) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _setCaps(maxPerBorrowerBps_, maxDeployedBps_);
+    }
+
+    /// @inheritdoc ILenderVault
+    function setMinRate(uint16 minRateBps_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _checkBounds(minRateBps_, 0, 5_000);
+        minRateBps = minRateBps_;
+        emit MinRateSet(minRateBps_);
     }
 
     function _setCaps(uint16 perBorrower, uint16 deployed) internal {

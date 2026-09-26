@@ -4,6 +4,7 @@
 // Env: RPC_URL (default http://127.0.0.1:8545), DEPLOYMENT (default ../../contracts/deployments/local.json),
 //      SCORER_PK (required; keep it in a gitignored .env), UNDERWRITER_MOCK=1 for the deterministic mock scorer,
 //      otherwise the Anthropic SDK reads its credentials from the environment.
+//      BORROWER_LANGUAGE (default en) sets the language of the borrower_summary, e.g. ar, bn, es.
 import { readFileSync } from "node:fs";
 import { createPublicClient, createWalletClient, http, type Address, type Hex, type PublicClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -26,7 +27,7 @@ async function main() {
   const borrower = borrowerArg as Address;
   const verified = await readVerifiedData(client, d, borrower);
   const scorer: Scorer = process.env.UNDERWRITER_MOCK === "1" ? new MockScorer() : new ClaudeScorer();
-  const score = await scorer.score(verified, { loanId, principal: 0n, termDays: 0, proposal: readFileSync(proposalFile, "utf8") });
+  const score = await scorer.score(verified, { loanId, principal: 0n, termDays: 0, proposal: readFileSync(proposalFile, "utf8"), language: process.env.BORROWER_LANGUAGE ?? "en" });
   const block = await client.getBlock();
   const onChain = toOnChainScore(score, loanId, borrower, block.timestamp + 30n * 86400n);
   const { uid } = await publishScore(client, wallet, account, d, onChain);

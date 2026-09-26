@@ -949,6 +949,118 @@
    "type": "unit",
    "description": "launch parameters match CLAUDE.md bounds",
    "status": "passing"
+  },
+  {
+   "id": "UW-08",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "proposals in any script are fenced; prompt forbids penalising language or writing style and asks for currency-risk weighting",
+   "status": "passing"
+  },
+  {
+   "id": "UW-09",
+   "module": "Underwriter",
+   "type": "unit",
+   "description": "borrower_summary is in the borrower's language with local numerals; same score whatever the language",
+   "status": "passing"
+  },
+  {
+   "id": "I18N-01",
+   "module": "i18n",
+   "type": "unit",
+   "description": "every catalog has the English keys and placeholders, valid metadata, and a message for every LoanRegistry cancel reason",
+   "status": "passing"
+  },
+  {
+   "id": "LR-21",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "drawdownTo pays an off-ramp partner or supplier; recipient sanctions-screened; debt stays with the borrower",
+   "status": "passing"
+  },
+  {
+   "id": "LR-22",
+   "module": "LoanRegistry",
+   "type": "unit",
+   "description": "anyone (employer, relative, cash-in agent) can repay on the borrower's behalf and the borrower's record improves",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-H1a",
+   "module": "Security",
+   "type": "unit",
+   "description": "second unverified wallet of the borrower cannot lend",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-H1b",
+   "module": "Security",
+   "type": "unit",
+   "description": "one wallet per person: a second wallet for the same person cannot register",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-H1c",
+   "module": "Security",
+   "type": "unit",
+   "description": "insurance and reserve never pay inflated interest, even with a colluding verified lender",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-H2a",
+   "module": "Security",
+   "type": "unit",
+   "description": "insurer withdrawals pause while a covered loan is flagged late; queued shares absorb the loss",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-H2b",
+   "module": "Security",
+   "type": "unit",
+   "description": "a healthy loan cannot be flagged late",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-H2c",
+   "module": "Security",
+   "type": "unit",
+   "description": "lender vault exits pause while any position is late",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-M1",
+   "module": "Security",
+   "type": "unit",
+   "description": "voucher cover cannot be pulled before the deadline",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-M3",
+   "module": "Security",
+   "type": "unit",
+   "description": "purpose codes outside 1..maxPurpose are rejected",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-M4",
+   "module": "Security",
+   "type": "unit",
+   "description": "vault allocator cannot bid below the floor rate",
+   "status": "passing"
+  },
+  {
+   "id": "SEC-L1",
+   "module": "Security",
+   "type": "unit",
+   "description": "loans below minPrincipal are rejected",
+   "status": "passing"
+  },
+  {
+   "id": "LW-08",
+   "module": "LossWaterfall",
+   "type": "unit",
+   "description": "insurance and reserve cover unpaid principal only",
+   "status": "passing"
   }
  ]
 }

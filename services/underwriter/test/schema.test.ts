@@ -7,6 +7,7 @@ const valid = {
   suggested_min_voucher_cover: 0.4,
   key_risks: ["short repayment history"],
   rationale: "Verified income covers repayments 3x.",
+  borrower_summary: { language: "es", text: "Nivel de riesgo 2 de 5." },
   model_id: "mock-v1",
 };
 

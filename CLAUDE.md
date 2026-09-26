@@ -2,6 +2,19 @@
 
 An AI-assisted, community-backed credit protocol on Ethereum. Borrowers prove creditworthiness privately, lenders fund loans at market-set rates, and a four-layer loss waterfall keeps any single default, or a bad year, from bringing the system down. Think of it as a bank whose equity, provisions and guarantors are on-chain and whose rules are code.
 
+## Who it is for
+
+The main users are people in low-income countries and in economies with broken or unstable finance (for example Egypt, Bangladesh, Argentina): high inflation, currency controls, thin credit bureaus, banks that do not lend to them. Design for them first:
+- **Their language.** Everything a borrower, voucher or small lender sees must be translatable. User-facing strings live in `i18n/` (one JSON catalog per language, English is the source); code never hard-codes user-facing text. The AI underwriter accepts proposals in any language and returns a plain-language explanation in the borrower's language. Launch languages: English, Arabic (right-to-left), Bengali, Spanish. Translations drafted by machine are marked `needs_review` until a native speaker checks them.
+- **Their money.** Loans are in dollar stablecoins while incomes are in local currency, so currency devaluation is a first-class default risk (model it in `sim/` as a country shock; the underwriter should weigh local-currency income).
+- **Their devices and connections.** Later-phase frontends must work on cheap Android phones and slow or intermittent connections. Keep on-chain interactions few and gas-light.
+- **Their real economy.** Built on crypto lending, but loans pay for real needs (stock, seeds, school fees, medical bills) and are repaid from local-currency income. The borrower can direct the payout to an off-ramp partner or supplier (`drawdownTo`), anyone can repay on their behalf, and loan purposes have plain-language names. See `docs/REAL_WORLD_USE.md`.
+- **Their law.** Crypto and stablecoin rules differ by country and change often. Jurisdiction tiers and the blocked list are governable for this reason; legal review per country comes before any real funds.
+
+## Open collaboration
+
+OBP is built in the open for a global community. Keep the repo easy to join: `./init.sh` must stay one command to green, `CONTRIBUTING.md` describes the workflow, `docs/good-first-issues.md` lists starter tasks, and translation work is a first-class contribution. Anything visible outside the repo (creating issues, labels, discussions, changing visibility, announcements) needs the founder's OK first.
+
 Status: Phase 1 (testnet MVP). No mainnet deployment and no real funds until contracts are audited and legal structure is in place.
 
 ## Why the design looks like this

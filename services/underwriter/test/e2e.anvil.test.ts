@@ -2,7 +2,7 @@ import { execFileSync, spawn, spawnSync, type ChildProcess } from "node:child_pr
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createPublicClient, createWalletClient, encodeAbiParameters, http, type Address, type PublicClient } from "viem";
+import { createPublicClient, createWalletClient, encodeAbiParameters, http, keccak256, type Address, type PublicClient } from "viem";
 import { foundry } from "viem/chains";
 import { mnemonicToAccount } from "viem/accounts";
 import { abis, loadDeployment, publishScore, readVerifiedData, type Deployment } from "../src/chain.js";
@@ -54,7 +54,7 @@ describe.skipIf(!hasFoundry)("UW-07: score, sign and attest on Anvil; ScoreOracl
       address: d.eas,
       abi: abis.eas,
       functionName: "attest",
-      args: [identitySchema, borrower.address, 0n, encodeAbiParameters([{ type: "uint256" }], [1n])],
+      args: [identitySchema, borrower.address, 0n, encodeAbiParameters([{ type: "uint256" }, { type: "bytes32" }], [1n, keccak256(borrower.address)])],
     });
     await client.waitForTransactionReceipt({ hash: await wallet(attester).writeContract(att.request) });
     const reg = await client.simulateContract({
@@ -81,12 +81,13 @@ describe.skipIf(!hasFoundry)("UW-07: score, sign and attest on Anvil; ScoreOracl
     const verified = await readVerifiedData(client, d, borrower.address as Address);
     expect(verified.tier).toBe("A");
     expect(verified.creditLimit).toBe(2_000_000_000n);
-    const score = await new MockScorer().score(verified, { loanId, principal: 1_000_000_000n, termDays: 180, proposal: "van" });
+    const score = await new MockScorer().score(verified, { loanId, principal: 1_000_000_000n, termDays: 180, proposal: "van", language: "bn" });
     const block = await client.getBlock();
     const onChain = toOnChainScore(score, loanId, borrower.address as Address, block.timestamp + 30n * 86400n);
     await publishScore(client, wallet(scorer), scorer, d, onChain);
 
     const c = await client.readContract({ address: d.scoreOracle, abi: abis.oracle, functionName: "consensus", args: [loanId, borrower.address] });
+    expect(score.borrower_summary.language).toBe("bn");
     expect(c.ok).toBe(true);
     expect(c.riskBand).toBe(score.risk_band);
     expect(c.minVoucherCoverBps).toBe(onChain.minVoucherCoverBps);

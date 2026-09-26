@@ -18,6 +18,7 @@ contract IdentityGate is IIdentityGate, ProtocolAccess {
     mapping(address attester => bool) public trustedAttester;
     mapping(uint16 country => Tier) private _countryTier;
     mapping(address account => bytes32 uid) public identityOf;
+    mapping(bytes32 person => address wallet) public walletOfPerson;
 
     constructor(address admin, address guardian, IEAS eas_, ISanctionsOracle oracle, bytes32 schema)
         ProtocolAccess(admin, guardian)
@@ -31,8 +32,17 @@ contract IdentityGate is IIdentityGate, ProtocolAccess {
     /// @inheritdoc IIdentityGate
     function registerIdentity(bytes32 uid) external {
         requireNotSanctioned(msg.sender);
-        (bool valid, uint16 country) = _validIdentity(uid, msg.sender);
-        if (!valid) revert InvalidAttestation(uid);
+        (bool valid, uint16 country, bytes32 person) = _validIdentity(uid, msg.sender);
+        if (!valid || person == bytes32(0)) revert InvalidAttestation(uid);
+        // One wallet per person, so a person cannot appear as two independent parties on the same loan.
+        // A lost wallet is replaced by revoking its attestation first.
+        address bound = walletOfPerson[person];
+        if (bound != address(0) && bound != msg.sender) {
+            (bool stillValid,,) = _validIdentity(identityOf[bound], bound);
+            if (stillValid) revert PersonAlreadyRegistered(person, bound);
+            delete identityOf[bound];
+        }
+        walletOfPerson[person] = msg.sender;
         identityOf[msg.sender] = uid;
         emit IdentityRegistered(msg.sender, uid, country);
     }
@@ -51,17 +61,26 @@ contract IdentityGate is IIdentityGate, ProtocolAccess {
     function borrowerProfile(address account) public view returns (Tier tier, uint16 country) {
         requireNotSanctioned(account);
         bool valid;
-        (valid, country) = _validIdentity(identityOf[account], account);
+        (valid, country,) = _validIdentity(identityOf[account], account);
         if (!valid) revert NotVerified(account);
         tier = tierOf(country);
         if (tier == Tier.Blocked) revert JurisdictionBlocked(account, country);
     }
 
     /// @inheritdoc IIdentityGate
-    function isEligibleBorrower(address account) external view returns (bool) {
+    function isEligibleBorrower(address account) public view returns (bool) {
         if (isSanctioned(account)) return false;
-        (bool valid, uint16 country) = _validIdentity(identityOf[account], account);
+        (bool valid, uint16 country,) = _validIdentity(identityOf[account], account);
         return valid && tierOf(country) != Tier.Blocked;
+    }
+
+    /// @inheritdoc IIdentityGate
+    function personOf(address account) public view returns (bytes32 person) {
+        if (isSanctioned(account)) return bytes32(0);
+        bool valid;
+        uint16 country;
+        (valid, country, person) = _validIdentity(identityOf[account], account);
+        if (!valid || tierOf(country) == Tier.Blocked || walletOfPerson[person] != account) return bytes32(0);
     }
 
     /// @inheritdoc IIdentityGate
@@ -97,16 +116,21 @@ contract IdentityGate is IIdentityGate, ProtocolAccess {
     }
 
     /// @dev Valid = exists, identity schema, trusted attester, issued to `account`, not revoked, not expired,
-    /// and data decodes to a country code.
-    function _validIdentity(bytes32 uid, address account) internal view returns (bool valid, uint16 country) {
-        if (uid == bytes32(0)) return (false, 0);
+    /// and data decodes to `(uint256 country, bytes32 person)`. `person` is the KYC issuer's stable, salted id for
+    /// the human (never raw personal data), unique per person.
+    function _validIdentity(bytes32 uid, address account)
+        internal
+        view
+        returns (bool valid, uint16 country, bytes32 person)
+    {
+        if (uid == bytes32(0)) return (false, 0, 0);
         Attestation memory a = eas.getAttestation(uid);
-        if (a.uid != uid || a.schema != identitySchema || a.recipient != account) return (false, 0);
-        if (!trustedAttester[a.attester] || a.revocationTime != 0) return (false, 0);
-        if (a.expirationTime != 0 && a.expirationTime <= block.timestamp) return (false, 0);
-        if (a.data.length != 32) return (false, 0);
-        uint256 raw = abi.decode(a.data, (uint256));
-        if (raw > type(uint16).max) return (false, 0);
-        return (true, uint16(raw));
+        if (a.uid != uid || a.schema != identitySchema || a.recipient != account) return (false, 0, 0);
+        if (!trustedAttester[a.attester] || a.revocationTime != 0) return (false, 0, 0);
+        if (a.expirationTime != 0 && a.expirationTime <= block.timestamp) return (false, 0, 0);
+        if (a.data.length != 64) return (false, 0, 0);
+        (uint256 raw, bytes32 p) = abi.decode(a.data, (uint256, bytes32));
+        if (raw > type(uint16).max) return (false, 0, 0);
+        return (true, uint16(raw), p);
     }
 }

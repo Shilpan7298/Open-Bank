@@ -39,7 +39,7 @@ contract LossWaterfall is ILossWaterfall, ProtocolAccess {
     }
 
     /// @inheritdoc ILossWaterfall
-    function executeDefault(uint256 loanId, uint256 loss)
+    function executeDefault(uint256 loanId, uint256 loss, uint256 insurableLoss)
         external
         onlyRole(REGISTRY_ROLE)
         returns (Allocation memory a)
@@ -48,6 +48,7 @@ contract LossWaterfall is ILossWaterfall, ProtocolAccess {
         allocated[loanId] = true;
         address to = msg.sender;
         a.loss = loss;
+        a.insurable = insurableLoss < loss ? insurableLoss : loss;
         uint256 remaining = loss;
 
         a.collateral = escrow.seize(loanId, remaining, to); // 1. borrower collateral
@@ -56,11 +57,18 @@ contract LossWaterfall is ILossWaterfall, ProtocolAccess {
         a.vouchers = vouching.absorbLoss(loanId, remaining, to); // 2. voucher stakes of this loan
         remaining -= a.vouchers;
 
-        (a.basketJunior, a.basketSenior) = basket.absorbLoss(loanId, remaining, to); // 3. basket junior, senior
-        remaining -= a.basketJunior + a.basketSenior;
+        // Insurance and the reserve cover unpaid principal only. The borrower's layers are counted against
+        // principal first (conservative for insurers); interest above that stays with the lenders who set the rate.
+        uint256 borrowerSide = a.collateral + a.vouchers;
+        uint256 insurableLeft = a.insurable > borrowerSide ? a.insurable - borrowerSide : 0;
 
-        if (remaining > 0) {
-            a.reserve = reserve.coverLoss(remaining, to); // 4. protocol reserve
+        (a.basketJunior, a.basketSenior) = basket.absorbLoss(loanId, insurableLeft, to); // 3. basket junior, senior
+        uint256 basketPaid = a.basketJunior + a.basketSenior;
+        remaining -= basketPaid;
+        insurableLeft -= basketPaid;
+
+        if (insurableLeft > 0) {
+            a.reserve = reserve.coverLoss(insurableLeft, to); // 4. protocol reserve
             remaining -= a.reserve;
         }
 

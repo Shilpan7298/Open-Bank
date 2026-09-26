@@ -99,7 +99,8 @@ contract LifecycleTest is SystemFixture {
         assertEq(a.vouchers, 600e6);
         assertEq(a.basketJunior, 50e6);
         assertEq(a.basketSenior, d.insuredExposure - 50e6);
-        assertEq(a.reserve + a.lenderLoss, 0);
+        assertEq(a.reserve, 0);
+        assertEq(a.lenderLoss, d.lenderDue - P); // only interest is uninsured
     }
 
     struct BadYear {
@@ -121,7 +122,7 @@ contract LifecycleTest is SystemFixture {
             s.usdc.mint(b, 1_000e6);
             vm.startPrank(b);
             s.usdc.approve(address(s.escrow), type(uint256).max);
-            uint256 id = s.registry.propose(P, TERM, 6, 1_500, uint16(10 + i), 0);
+            uint256 id = s.registry.propose(P, TERM, 6, 1_500, uint16(1 + i), 0);
             vm.stopPrank();
             _scoreLoan(id, b, 3, 0);
             _open(id);
@@ -151,7 +152,8 @@ contract LifecycleTest is SystemFixture {
                 reserveUsed = true;
                 assertEq(a.basketJunior + a.basketSenior, capBefore); // basket exhausted first
             }
-            if (a.lenderLoss > 0) assertEq(a.reserve, resBefore); // reserve exhausted first
+            uint256 interest = s.registry.duesOf(y.ids[i]).lenderDue - P;
+            if (a.lenderLoss > interest) assertEq(a.reserve, resBefore); // principal lost only after the reserve
         }
         assertTrue(reserveUsed);
         assertEq(s.basket.capital(bid), 0);
@@ -160,21 +162,24 @@ contract LifecycleTest is SystemFixture {
     // E2E-05
     function test_badYearSeniorLendersLoseLast() public {
         BadYear memory y = _badYear();
-        uint256 lenderLoss;
+        uint256 principalLoss;
         for (uint256 i; i < y.ids.length; i++) {
             s.registry.markDefault(y.ids[i]);
             ILossWaterfall.Allocation memory a = s.waterfall.allocationOf(y.ids[i]);
-            if (a.lenderLoss > 0) {
+            uint256 interest = s.registry.duesOf(y.ids[i]).lenderDue - P;
+            assertGe(a.lenderLoss, interest); // interest is never insured
+            if (a.lenderLoss > interest) {
+                principalLoss += a.lenderLoss - interest;
                 assertEq(a.collateral, 300e6);
                 assertEq(a.vouchers, 600e6);
                 assertEq(s.basket.capital(s.basket.basketIdOf(3, Tier.A)), 0);
             }
-            lenderLoss += a.lenderLoss;
+
             // lenders of each loan still recover everything the layers paid
             ILoanRegistry.Dues memory d = s.registry.duesOf(y.ids[i]);
             assertEq(d.lenderCash + a.lenderLoss, d.lenderDue);
         }
-        assertGt(lenderLoss, 0);
+        assertGt(principalLoss, 0);
         assertEq(s.reserve.reserveAssets(), 0);
     }
 

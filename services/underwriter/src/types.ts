@@ -20,4 +20,6 @@ export interface LoanRequest {
   principal: bigint;
   termDays: number;
   proposal: string;
+  /** Borrower's preferred language as a BCP-47 tag ("ar", "bn", "es", "en", ...). */
+  language: string;
 }

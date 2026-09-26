@@ -40,6 +40,9 @@ else
   echo "solc-js fallback: $FOUNDRY_SOLC"
 fi
 
+step "i18n catalogs"
+node i18n/check.mjs
+
 step "contracts: build + test"
 (cd contracts && forge build && forge test)
 

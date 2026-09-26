@@ -143,15 +143,15 @@ contract VouchingModule is IVouchingModule, ProtocolAccess, ReentrancyGuard {
     /// @inheritdoc IVouchingModule
     function unstake(uint256 loanId) external nonReentrant {
         Cover storage c = _covers[loanId];
-        bool open = c.state == CoverState.Open && block.timestamp < c.deadline;
-        if (!open && c.state != CoverState.Cancelled) revert WrongState(loanId, c.state);
+        // Security M-1: stakes are binding like bids. Otherwise a griefer could fill all cover (blocking honest
+        // vouchers) and pull it out just before the deadline so the loan cancels.
+        if (c.state != CoverState.Cancelled) revert WrongState(loanId, c.state);
         gate.requireNotSanctioned(msg.sender);
         Slice storage s = _slices[loanId][msg.sender];
         uint256 shares = s.shares;
         if (shares == 0) revert NoSlice();
         c.coverPrincipal -= s.principal;
         c.shares -= shares;
-        if (c.state == CoverState.Open) _stats[msg.sender].backed -= 1;
         delete _slices[loanId][msg.sender];
         uint256 assets = stakeVault.redeem(shares, msg.sender, address(this));
         emit Unstaked(loanId, msg.sender, assets);

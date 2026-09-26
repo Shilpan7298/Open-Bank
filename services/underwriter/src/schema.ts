@@ -13,6 +13,13 @@ export const ScoreSchema = z
     suggested_min_voucher_cover: z.number().min(0).max(1),
     key_risks: z.array(z.string().min(1).max(280)).max(10),
     rationale: z.string().min(1).max(4000),
+    /** Plain-language explanation for the borrower, in the borrower's language. */
+    borrower_summary: z
+      .object({
+        language: z.string().regex(/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/),
+        text: z.string().min(1).max(2000),
+      })
+      .strict(),
     model_id: z.string().min(1).max(100),
   })
   .strict();

@@ -1,0 +1,21 @@
+name: Idea or feature
+description: Propose a change. Economic design changes need agreement before code. Any language is fine.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who is affected, and why does it matter for borrowers, vouchers, insurers or lenders?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+  - type: checkboxes
+    id: econ
+    attributes:
+      label: Does this change the economic design?
+      options:
+        - label: It changes a parameter, the loss waterfall order, or who bears which loss (needs founder agreement first)

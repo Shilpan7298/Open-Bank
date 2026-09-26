@@ -121,17 +121,15 @@ contract VouchingModuleTest is VouchingFixture {
         _stake(v2, 1, 50e6);
     }
 
-    // VM-04
-    function test_unstakeOpenCancelledNotLocked() public {
+    // VM-04: stakes are binding while backing (security M-1) and after lock; withdrawable once cancelled.
+    function test_unstakeOnlyWhenCancelled() public {
         _open(1, 1_000e6);
-        _stake(v1, 1, 100e6);
         uint256 before = usdc.balanceOf(v1);
-        vm.prank(v1);
-        vm_.unstake(1);
-        assertEq(usdc.balanceOf(v1) - before, 100e6);
-        assertEq(vm_.coverOf(1).coverPrincipal, 0);
-
         _stake(v1, 1, 100e6);
+        vm.prank(v1);
+        vm.expectRevert(abi.encodeWithSelector(IVouchingModule.WrongState.selector, 1, IVouchingModule.CoverState.Open));
+        vm_.unstake(1);
+
         vm.prank(registry);
         vm_.lockCover(1);
         vm.prank(v1);
@@ -145,7 +143,19 @@ contract VouchingModuleTest is VouchingFixture {
         vm_.cancelCover(1); // funded loan never drawn down
         vm.prank(v1);
         vm_.unstake(1);
-        assertEq(usdc.balanceOf(v1), before + 100e6); // both stakes returned in full
+        assertEq(usdc.balanceOf(v1), before); // stake returned in full
+        assertEq(vm_.coverOf(1).coverPrincipal, 0);
+    }
+
+    // Security M-1: a griefer cannot fill the cover and pull it out before the deadline.
+    function test_coverCannotBePulledBeforeDeadline() public {
+        _open(1, 600e6);
+        _stake(v1, 1, 600e6); // fills the whole cap
+        vm.warp(deadline - 1);
+        vm.prank(v1);
+        vm.expectRevert();
+        vm_.unstake(1);
+        assertEq(vm_.coverOf(1).coverPrincipal, 600e6);
     }
 
     function test_unstakeClosedAfterDeadline() public {

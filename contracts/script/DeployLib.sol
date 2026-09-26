@@ -105,6 +105,7 @@ library DeployLib {
         address reg = address(s.registry);
         address wf = address(s.waterfall);
         s.reserve.setLoanRegistry(reg);
+        s.basket.setLoanRegistry(reg);
         s.stakeVault.grantRole(s.stakeVault.DEPOSITOR_ROLE(), address(s.vouching));
         s.credit.grantRole(s.credit.REGISTRY_ROLE(), reg);
         s.escrow.grantRole(s.escrow.REGISTRY_ROLE(), reg);
@@ -117,6 +118,7 @@ library DeployLib {
         s.reserve.grantRole(s.reserve.REGISTRY_ROLE(), reg);
         s.reserve.grantRole(s.reserve.WATERFALL_ROLE(), wf);
         s.waterfall.grantRole(s.waterfall.REGISTRY_ROLE(), reg);
+        s.auction.grantRole(s.auction.EXEMPT_LENDER_ROLE(), address(s.lenderVault));
     }
 
     /// @notice Every governed contract, for hand-over and governance tests.

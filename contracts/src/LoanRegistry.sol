@@ -85,7 +85,9 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
                 minTerm: 30 days,
                 maxTerm: 730 days,
                 maxInstallments: 24,
-                voucherPremiumBps: 400
+                voucherPremiumBps: 400,
+                maxPurpose: 10,
+                minPrincipal: 10e6
             })
         );
         m.asset.forceApprove(address(m.vouching), type(uint256).max);
@@ -107,10 +109,13 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         (Tier tier, uint16 country) = gate.borrowerProfile(msg.sender);
         Params memory p = params;
         if (
-            principal == 0 || term < p.minTerm || term > p.maxTerm || numInstallments == 0
+            principal < p.minPrincipal || term < p.minTerm || term > p.maxTerm || numInstallments == 0
                 || numInstallments > p.maxInstallments || maxRateBps == 0 || maxRateBps > auction.MAX_RATE_BPS()
                 || maxRateBps % auction.TICK_BPS() != 0
         ) revert InvalidTerms();
+        // Security M-3: purposes are a fixed, governed list. Free-form codes let a borrower dodge the basket's
+        // sector concentration cap and bloat the per-key sets insurers' exits iterate over.
+        if (sector == 0 || sector > p.maxPurpose) revert InvalidPurpose(sector);
         uint256 available = credit.availableCredit(msg.sender, tier);
         if (principal > available) revert ExceedsCreditLimit(principal, available);
 
@@ -195,10 +200,25 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
 
     /// @inheritdoc ILoanRegistry
     function drawdown(uint256 loanId, bytes32 agreementHash) external whenNotPaused nonReentrant {
+        _drawdown(loanId, agreementHash, msg.sender);
+    }
+
+    /// @inheritdoc ILoanRegistry
+    function drawdownTo(uint256 loanId, bytes32 agreementHash, address recipient)
+        external
+        whenNotPaused
+        nonReentrant
+    {
+        _drawdown(loanId, agreementHash, recipient);
+    }
+
+    function _drawdown(uint256 loanId, bytes32 agreementHash, address recipient) internal {
         Loan storage l = _requireBorrowerState(loanId, LoanState.Funded);
         if (block.timestamp > l.drawdownDeadline) revert DrawdownExpired(loanId);
         if (agreementHash == bytes32(0)) revert EmptyAgreement();
         gate.borrowerProfile(msg.sender); // payout: identity still valid, not sanctioned, not blocked
+        if (recipient == address(0)) revert ZeroAddress();
+        if (recipient != msg.sender) gate.requireNotSanctioned(recipient);
 
         uint256 p = l.principal;
         l.agreementHash = agreementHash;
@@ -209,8 +229,8 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         auction.disburse(loanId);
         uint256 fee = reserve.collectFee(p);
         _dues[loanId].reserveFee = fee;
-        asset.safeTransfer(msg.sender, p - fee);
-        emit LoanDrawn(loanId, agreementHash, fee, p - fee);
+        asset.safeTransfer(recipient, p - fee);
+        emit LoanDrawn(loanId, agreementHash, fee, p - fee, recipient);
     }
 
     /// @inheritdoc ILoanRegistry
@@ -263,8 +283,11 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         l.state = LoanState.Defaulted;
         (uint256 lenderPaid,,) = _split(d, d.repaid);
         uint256 loss = d.lenderDue - lenderPaid;
+        // Lender receipts repay principal and interest pro rata; the principal still unpaid is insurable.
+        uint256 principalPaid = Math.mulDiv(lenderPaid, l.principal, d.lenderDue);
+        uint256 insurable = l.principal - principalPaid;
 
-        ILossWaterfall.Allocation memory a = waterfall.executeDefault(loanId, loss);
+        ILossWaterfall.Allocation memory a = waterfall.executeDefault(loanId, loss, insurable);
         uint256 recovered = loss - a.lenderLoss;
         d.lenderCash += recovered;
         credit.onLoanDefaulted(l.borrower, l.principal);
@@ -318,6 +341,12 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
     }
 
     /// @inheritdoc ILoanRegistry
+    function isLate(uint256 loanId) external view returns (bool) {
+        if (_loans[loanId].state != LoanState.Active) return false;
+        return _dues[loanId].repaid < amountDueBy(loanId, block.timestamp);
+    }
+
+    /// @inheritdoc ILoanRegistry
     function isDefaultable(uint256 loanId) public view returns (bool) {
         if (_loans[loanId].state != LoanState.Active) return false;
         uint256 grace = params.defaultGracePeriod;
@@ -349,7 +378,9 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         d.lenderDue = p + Math.mulDiv(p * rateBps, l.term, YEAR * BPS, Math.Rounding.Ceil);
         d.coverPrincipal = vouching.coverOf(loanId).coverPrincipal;
         uint256 backing = escrow.collateralOf(loanId) + d.coverPrincipal;
-        d.insuredExposure = d.lenderDue > backing ? d.lenderDue - backing : 0;
+        // Insurance covers principal only (security review H-1): never the interest at a rate the borrower
+        // could have set against itself.
+        d.insuredExposure = p > backing ? p - backing : 0;
         d.voucherPremiumDue =
             Math.mulDiv(d.coverPrincipal * params.voucherPremiumBps, l.term, YEAR * BPS, Math.Rounding.Ceil);
         uint16 insuranceRate = basket.premiumRateBps(_basketId(l));
@@ -419,6 +450,8 @@ contract LoanRegistry is ILoanRegistry, ProtocolAccess, ReentrancyGuard {
         _checkBounds(p.maxTerm, p.minTerm, 1_825 days);
         _checkBounds(p.maxInstallments, 1, 120);
         _checkBounds(p.voucherPremiumBps, 0, 2_000);
+        _checkBounds(p.maxPurpose, 1, 1_000);
+        _checkBounds(p.minPrincipal, 1, 1_000_000e6);
         params = p;
         emit ParamsSet(p);
     }

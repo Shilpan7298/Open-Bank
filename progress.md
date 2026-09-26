@@ -7,8 +7,60 @@ Phase 1 foundation is in place and green.
 - All 11 contract modules from CLAUDE.md are implemented, plus `StakeVault` (the stake yield vault), `DeployLib` and an Anvil deploy script.
 - **Foundry: 137 tests pass** (`forge test`): unit, fuzz, 12 stateful invariants (8 of them system-wide), e2e and deploy.
 - **Underwriter: 21 tests pass** (`npx vitest run`), including a live Anvil end-to-end run. **Sim: 1 test passes.**
-- `tests.json`: **134 of 135 planned tests pass.** The one not started is IB-13, basket capital earning base yield (see Next).
+- `tests.json`: **137 of 138 planned tests pass** (see session 1b below). The one not started is IB-13, basket capital earning base yield (see Next).
 - `./init.sh` takes a fresh clone to green in one command.
+
+## Session 1b: global access and open collaboration
+
+The founder set the direction: OBP is mainly for people in poor or broken economies (Egypt, Bangladesh, Argentina), in their own languages, and built in the open with collaborators worldwide. Recorded in CLAUDE.md ("Who it is for", "Open collaboration").
+
+- **`i18n/`:** English source plus Arabic (RTL), Bengali and Spanish machine drafts (`needs_review`), 37 messages each. They cover loan states, every contract cancel reason, errors, plain-language concept explanations, repayment prompts and score summaries. `i18n/check.mjs` runs in init.sh and CI.
+- **Underwriter:**
+  - Reads proposals in any language.
+  - Is told never to penalise language or writing quality, and to weigh local-currency risk.
+  - Returns `borrower_summary` in the borrower's language. It is part of the hashed published score.
+  - The mock uses the catalogs and local numerals: `ar-EG` gives Arabic-Indic digits, `bn-BD` Bengali digits, and plain `ar` Western digits.
+  - Existing tests gained the new required fields (a spec extension, not a weakening). New tests: UW-08, UW-09, I18N-01.
+- **Collaboration:**
+  - README rewritten for newcomers, plus README.ar.md, README.bn.md and README.es.md.
+  - CONTRIBUTING.md (with translation sections in each launch language), CODE_OF_CONDUCT.md and SECURITY.md.
+  - Issue templates: bug, idea, translation, country insight. A pull-request template.
+  - CI (`.github/workflows/ci.yml` runs `./init.sh`).
+  - docs/good-first-issues.md (13 starter tasks) and docs/ROADMAP.md.
+- **Waiting on the founder:**
+  - Creating GitHub issues and labels from the starter list.
+  - Enabling Discussions and private vulnerability reporting.
+  - Repository visibility.
+  - A contact email for conduct and security reports (currently @Shilpan7298 on GitHub).
+  - Merging this branch to `main`.
+- **Open question:** the stablecoin legal position differs sharply by country. Bangladesh's central bank has warned against crypto, Egypt restricts it, and Argentina uses stablecoins widely. This needs country legal review before any real funds (Phase 3).
+
+## Session 1c: real-economy use and security review
+
+- **Real economy.** `drawdownTo` pays a sanctions-screened off-ramp partner or supplier. Tests show anyone can repay on the borrower's behalf. Loan purposes have plain-language names in all four languages. See `docs/REAL_WORLD_USE.md`.
+- **Security review.** Full report in `docs/SECURITY_REVIEW.md`. Two High, four Medium and one Low finding, all fixed, each with a proof test in `contracts/test/security/`. Eight residual risks are documented.
+  - **H-1, wash lending:**
+    - one wallet per person (identity attestations carry a person id);
+    - direct lenders must be verified people other than the borrower (vaults exempt);
+    - insurance and the reserve cover unpaid principal only.
+  - **H-2:** insurer and vault exits pause while a covered loan is late.
+  - **M-1:** voucher stakes are binding.
+  - **M-2:** a better-rate bid evicts the worst when the book is full.
+  - **M-3:** purpose codes are bounded to 1..10.
+  - **M-4:** vault floor rate of 5%.
+  - **L-1:** minimum principal of 10 USDC.
+- **Tests changed because the specification changed** (none were weakened):
+  - The LR-04, LR-12 and LR-18 and E2E-03/04/05 expectations encoded the old loss definition, where insurance covered lender interest. They now assert principal-only cover, and that lenders lose at most interest while insurers have capacity.
+  - VM-04 encoded withdrawable stakes; it now asserts binding stakes.
+  - RA-09 encoded "full book rejects all new bids"; it now asserts eviction by a better rate.
+  - The system-invariant waterfall check now applies the insurable cap.
+  - Fixtures onboard lenders (now required) and use purpose codes 1..10.
+- **CI miss.** After H-1, CI failed because the underwriter's Anvil test still used the old identity encoding. I had run only `forge test` before pushing. It is fixed, and the full `./init.sh` now runs before every push.
+- **Founder decisions:**
+  - confirm principal-only insurance (it reverses the earlier interest-covered choice);
+  - requiring KYC for direct lenders;
+  - credit-farming mitigation (R-1);
+  - repayment schedules and early-payoff refunds (`docs/REAL_WORLD_USE.md`).
 
 ## How to resume
 

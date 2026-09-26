@@ -35,7 +35,7 @@ describe("on-chain score encoding", () => {
 
   it("converts fractions conservatively", () => {
     const s = toOnChainScore(
-      { risk_band: 2, probability_of_default: 0.03456, suggested_min_voucher_cover: 0.33333, key_risks: [], rationale: "r", model_id: "m" },
+      { risk_band: 2, probability_of_default: 0.03456, suggested_min_voucher_cover: 0.33333, key_risks: [], rationale: "r", borrower_summary: { language: "en", text: "s" }, model_id: "m" },
       1n,
       "0x00000000000000000000000000000000000000B0",
       1n,
@@ -43,7 +43,7 @@ describe("on-chain score encoding", () => {
     expect(s.pdBps).toBe(346);
     expect(s.minVoucherCoverBps).toBe(3334); // rounds up
     const exact = toOnChainScore(
-      { risk_band: 2, probability_of_default: 0, suggested_min_voucher_cover: 0.6, key_risks: [], rationale: "r", model_id: "m" },
+      { risk_band: 2, probability_of_default: 0, suggested_min_voucher_cover: 0.6, key_risks: [], rationale: "r", borrower_summary: { language: "en", text: "s" }, model_id: "m" },
       1n,
       "0x00000000000000000000000000000000000000B0",
       1n,

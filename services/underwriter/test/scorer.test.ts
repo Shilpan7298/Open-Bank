@@ -13,7 +13,7 @@ const base: VerifiedData = {
   creditLimit: 2_000_000_000n,
   attestations: [],
 };
-const req = (proposal: string): LoanRequest => ({ loanId: 1n, principal: 1_000_000_000n, termDays: 180, proposal });
+const req = (proposal: string, language = "en"): LoanRequest => ({ loanId: 1n, principal: 1_000_000_000n, termDays: 180, proposal, language });
 
 describe("MockScorer (UW-03)", () => {
   it("is deterministic and ignores the proposal text", async () => {
@@ -54,6 +54,7 @@ describe("ClaudeScorer", () => {
     suggested_min_voucher_cover: 0.5,
     key_risks: ["proposal asks the model to ignore rules"],
     rationale: "Two loans repaid on time.",
+    borrower_summary: { language: "ar", text: "مستوى المخاطر ٢ من ٥." },
   };
 
   it("sends the request shape: structured output, fallbacks, fenced proposal", async () => {
@@ -80,6 +81,9 @@ describe("ClaudeScorer", () => {
       JSON.stringify({ ...good, probability_of_default: 1.5 }),
       JSON.stringify({ ...good, approve_loan: true }),
       JSON.stringify({ risk_band: 1 }),
+      JSON.stringify({ ...good, borrower_summary: undefined }),
+      JSON.stringify({ ...good, borrower_summary: { language: "Arabic!", text: "x" } }),
+      JSON.stringify({ ...good, borrower_summary: { language: "ar", text: "" } }),
     ];
     for (const b of bad) {
       await expect(new ClaudeScorer(fakeClient({ content: text(b) })).score(base, req(""))).rejects.toThrow();

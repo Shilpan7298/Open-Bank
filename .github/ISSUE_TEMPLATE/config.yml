@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability (private)
+    url: https://github.com/Shilpan7298/Open-Bank/security/advisories/new
+    about: Please report vulnerabilities privately, not as public issues.

@@ -39,6 +39,7 @@ export function canonicalScoreJson(score: Score): string {
     suggested_min_voucher_cover: score.suggested_min_voucher_cover,
     key_risks: score.key_risks,
     rationale: score.rationale,
+    borrower_summary: score.borrower_summary,
     model_id: score.model_id,
   });
 }

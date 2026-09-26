@@ -90,7 +90,7 @@ contract LoanRegistryTest is SystemFixture {
         assertEq(l.rateBps, 900);
         assertEq(d.coverPrincipal, 600e6);
         assertEq(d.lenderDue, 1_044_383_562); // 1000 + 9% x 180/365, rounded up
-        assertEq(d.insuredExposure, d.lenderDue - 900e6);
+        assertEq(d.insuredExposure, P - 900e6); // principal only (security H-1)
         assertEq(d.totalDue, d.lenderDue + d.voucherPremiumDue + d.insurancePremiumDue);
         assertEq(uint8(s.vouching.coverOf(id).state), uint8(IVouchingModule.CoverState.Locked));
         assertEq(s.basket.exposureOf(s.basket.basketIdOf(2, Tier.A)), d.insuredExposure);
@@ -212,9 +212,9 @@ contract LoanRegistryTest is SystemFixture {
         _vouch(id2, v2, 400e6); // 20% + 80% = 100%
         _bid(id2, l2, 500e6, 800);
         assertTrue(_settle(id2));
-        // only the interest is left for insurance
+        // collateral + stakes cover all principal, so nothing is insured (interest risk stays with lenders)
         ILoanRegistry.Dues memory d = s.registry.duesOf(id2);
-        assertEq(d.insuredExposure, d.lenderDue - 500e6);
+        assertEq(d.insuredExposure, 0);
     }
 
     // LR-13
@@ -369,8 +369,11 @@ contract LoanRegistryTest is SystemFixture {
         assertEq(a.loss, d.lenderDue - lenderPaid);
         assertEq(a.collateral, 300e6);
         assertEq(a.vouchers, 600e6);
-        assertEq(a.lenderLoss, 0); // basket covers the rest
-        assertEq(s.registry.duesOf(id).lenderCash, d.lenderDue); // lenders made whole
+        uint256 lenderPaidExact = 100e6 * d.lenderDue / d.totalDue;
+        assertEq(a.insurable, P - lenderPaidExact * P / d.lenderDue); // unpaid principal (pro rata split)
+        assertEq(a.basketJunior + a.basketSenior, a.insurable - 900e6); // basket covers the principal gap
+        assertLe(a.lenderLoss, d.lenderDue - P); // lenders lose at most interest, never principal
+        assertEq(s.registry.duesOf(id).lenderCash + a.lenderLoss, d.lenderDue);
         assertEq(s.credit.creditLimit(borrower, Tier.A), 0);
         assertEq(s.registry.totalOutstandingPrincipal(), 0);
         vm.expectRevert();
@@ -416,5 +419,57 @@ contract LoanRegistryTest is SystemFixture {
         s.registry.markDefault(id);
         vm.prank(l1);
         s.registry.claim(id);
+    }
+}
+
+/// Real-economy use: money arrives where the borrower can spend it, and repayment can come from anyone.
+contract RealEconomyTest is SystemFixture {
+    address offRamp = makeAddr("mobileMoneyOffRamp");
+
+    // LR-21
+    function test_drawdownToOffRampPartner() public {
+        uint256 id = _fundedLoan();
+        uint256 before = s.usdc.balanceOf(borrower);
+        vm.prank(borrower);
+        s.registry.drawdownTo(id, keccak256("agreement"), offRamp);
+        assertEq(s.usdc.balanceOf(offRamp), P - 15e6);
+        assertEq(s.usdc.balanceOf(borrower), before); // the borrower's wallet is not involved
+        assertEq(uint8(_state(id)), uint8(LoanState.Active));
+        assertEq(s.registry.loanOf(id).borrower, borrower); // the debt stays with the borrower
+    }
+
+    function test_drawdownToRejectsSanctionedOrZero() public {
+        uint256 id = _fundedLoan();
+        vm.prank(borrower);
+        vm.expectRevert();
+        s.registry.drawdownTo(id, keccak256("a"), address(0));
+        s.sanctions.setSanctioned(offRamp, true);
+        vm.prank(borrower);
+        vm.expectRevert(abi.encodeWithSelector(IIdentityGate.Sanctioned.selector, offRamp));
+        s.registry.drawdownTo(id, keccak256("a"), offRamp);
+        vm.prank(offRamp);
+        vm.expectRevert(ILoanRegistry.NotBorrower.selector); // only the borrower chooses where money goes
+        s.registry.drawdownTo(id, keccak256("a"), offRamp);
+    }
+
+    // LR-22
+    function test_anyoneCanRepayOnBehalf() public {
+        uint256 id = _activeLoan();
+        address relative = makeAddr("relativeAbroad");
+        address agent = makeAddr("cashInAgent");
+        ILoanRegistry.Dues memory d = s.registry.duesOf(id);
+        s.usdc.mint(relative, d.totalDue);
+        s.usdc.mint(agent, d.totalDue);
+        vm.startPrank(relative);
+        s.usdc.approve(address(s.registry), type(uint256).max);
+        s.registry.repay(id, d.totalDue / 2);
+        vm.stopPrank();
+        vm.startPrank(agent);
+        s.usdc.approve(address(s.registry), type(uint256).max);
+        s.registry.repay(id, d.totalDue);
+        vm.stopPrank();
+        assertEq(uint8(_state(id)), uint8(LoanState.Repaid));
+        assertEq(s.credit.historyOf(borrower).repaidLoans, 1); // the borrower's record improves
+        assertEq(s.usdc.balanceOf(agent), d.totalDue - (d.totalDue - d.totalDue / 2)); // overpayment capped
     }
 }

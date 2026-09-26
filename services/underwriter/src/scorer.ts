@@ -2,6 +2,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { parseScore, type Score } from "./schema.js";
 import { buildUserMessage, SYSTEM_PROMPT } from "./prompt.js";
+import { number, percent, t } from "./i18n.js";
 import type { LoanRequest, VerifiedData } from "./types.js";
 
 export interface Scorer {
@@ -15,7 +16,7 @@ export const MOCK_MODEL_ID = "mock-underwriter-v1";
  * cannot move it). No API key needed.
  */
 export class MockScorer implements Scorer {
-  async score(v: VerifiedData, _request?: LoanRequest): Promise<Score> {
+  async score(v: VerifiedData, request: LoanRequest): Promise<Score> {
     let band = v.repaidLoans >= 4 ? 1 : v.repaidLoans >= 2 ? 2 : 3;
     if (v.tier === "B") band += 1;
     if (v.tier === "C") band += 1;
@@ -29,6 +30,11 @@ export class MockScorer implements Scorer {
       suggested_min_voucher_cover: cover,
       key_risks: v.repaidLoans === 0 ? ["no repayment history"] : [],
       rationale: `Mock score from verified data: ${v.repaidLoans} repaid, ${v.defaultedLoans} defaulted, tier ${v.tier}.`,
+      borrower_summary: t(request.language, "underwriter.summary", {
+        band: number(request.language, band),
+        pd: percent(request.language, pd),
+        cover: percent(request.language, cover),
+      }),
       model_id: MOCK_MODEL_ID,
     });
   }
@@ -43,8 +49,14 @@ const OUTPUT_SCHEMA = {
     suggested_min_voucher_cover: { type: "number" },
     key_risks: { type: "array", items: { type: "string" } },
     rationale: { type: "string" },
+    borrower_summary: {
+      type: "object",
+      properties: { language: { type: "string" }, text: { type: "string" } },
+      required: ["language", "text"],
+      additionalProperties: false,
+    },
   },
-  required: ["risk_band", "probability_of_default", "suggested_min_voucher_cover", "key_risks", "rationale"],
+  required: ["risk_band", "probability_of_default", "suggested_min_voucher_cover", "key_risks", "rationale", "borrower_summary"],
   additionalProperties: false,
 } as const;
 
